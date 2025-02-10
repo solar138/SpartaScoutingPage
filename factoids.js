@@ -8,11 +8,21 @@ function showScoutFactoids() {
 }
 showScoutFactoids();
 
+
+// document.getElementById("mapButton").addEventListener("click", () => {
+//     window.location.href = "setup.html";
+// });
+
+
+document.getElementById("mapButton").addEventListener("click", () => {
+    loadPage("setup.html"); // Load setup.html inside #app
+});
+
+
 //Updates local memory when changes are made
 function updateMem() {
     localStorage.setItem("notes", scoutingContainer.innerHTML);
 }
-
 
 
 //Creates a blog
@@ -42,5 +52,3 @@ scoutingContainer.addEventListener("click", function(e){
         })
     }
 })
-
-
