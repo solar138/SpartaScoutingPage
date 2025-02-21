@@ -9,13 +9,8 @@ function showScoutFactoids() {
 showScoutFactoids();
 
 
-// document.getElementById("mapButton").addEventListener("click", () => {
-//     window.location.href = "setup.html";
-// });
-
-
 document.getElementById("mapButton").addEventListener("click", () => {
-    loadPage("setup.html"); // Load setup.html inside #app
+    window.location.href = "setup.html";
 });
 
 

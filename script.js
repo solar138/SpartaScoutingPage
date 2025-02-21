@@ -13,6 +13,9 @@ const loadPage = (filename, callback) => {
     .catch(error => console.error("Error loading HTML:", error));
 };
 
+document.getElementById("mapButton").addEventListener("click", () => {
+  renderPage1(); // This will dynamically load the map page
+});
 
 let teamNumber = "";
 let roundNumber = "";
@@ -22,7 +25,7 @@ const mapData = {
   actions: [],
 };
 
-function renderPage1() {
+document.getElementById("mapButton").addEventListener("click", () => {
   loadPage("setup.html", () => {
     const form = document.getElementById("setupForm");
     if (!form) return console.error("setupForm not found!");
@@ -36,34 +39,23 @@ function renderPage1() {
     });
   });
 }
+)
 
 function renderPage2() {
   loadPage("map.html", () => {
-    const map = document.getElementById("map");
-    if (!map) return console.error("Map element not found!");
-
-    map.addEventListener("click", (e) => {
-      const rect = map.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      pinLocation = { x, y };
-
-      // Create a pin marker
-      const pin = document.createElement("div");
-      pin.style.position = "absolute";
-      pin.style.left = `${x}px`;
-      pin.style.top = `${y}px`;
-      pin.style.width = "10px";
-      pin.style.height = "10px";
-      pin.style.background = "red";
-      pin.style.borderRadius = "50%";
-      map.appendChild(pin);
-    });
-
     const startButton = document.getElementById("startButton");
-    if (!startButton) return console.error("startButton not found!");
+    if (!startButton) return console.error("Start button not found!");
 
     startButton.addEventListener("click", () => {
+      const checkbox1 = document.getElementById("checkbox1").checked;
+      const checkbox2 = document.getElementById("checkbox2").checked;
+      const checkbox3 = document.getElementById("checkbox3").checked;
+
+      mapData.actions.push({ checkbox1, checkbox2, checkbox3 });
+
+      const jsonData1 = JSON.stringify(mapData, null, 2);
+      console.log(jsonData1);
+      alert("Data saved to console as JSON");
       renderPage3();
     });
   });
@@ -101,11 +93,9 @@ function renderPage3() {
         pinLocation,
       });
 
-      const jsonData = JSON.stringify(mapData, null, 2);
-      console.log(jsonData);
+      const jsonData2 = JSON.stringify(mapData, null, 2);
+      console.log(jsonData2);
       alert("Data saved to console as JSON");
     });
   });
 }
-
-renderPage1();
