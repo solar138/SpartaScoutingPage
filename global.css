@@ -1,0 +1,55 @@
+h1 {
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+body {
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    text-align: center;
+}
+
+input {
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+}
+
+.input-inline {
+    height: 6vh;
+    font-size: 3vh;
+    width: 8em;
+    text-align: center;
+    border:none;
+}
+
+.nav-button {
+    position:absolute;
+    left: 15px;
+    top: 30px;
+}
+
+.number {
+    font-size: 6vh;
+    width: 4em;
+}
+
+.red {
+    background-color: rgb(244, 115, 115);
+    transition:0.2s;
+}
+
+.blue {
+    background-color: rgb(129, 129, 238);
+    transition:0.2s
+}
+
+button.input-inline {
+    font-size: 4vh;
+    width: 4em;
+    border-radius:8px;
+}
+
+#submit:enabled {
+    background-color: rgb(181, 236, 187);
+}
+
+#submit:disabled {
+    background-color: rgb(252, 216, 216);
+}
