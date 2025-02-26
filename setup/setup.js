@@ -19,7 +19,7 @@ try {
   localStorage.Error = localStorage.ScoutingData;
   localStorage.ScoutingData = "[]";
 }
-let currentData = data[data.length - 1] ?? new ScoutingData(null, null, "unknown", null);
+let currentData = data[data.length - 1] ?? new ScoutingData(null, null, "", null);
 
 if (data.length == 0) {
   data[0] = currentData;
