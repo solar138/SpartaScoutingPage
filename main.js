@@ -119,6 +119,10 @@ document.addEventListener("DOMContentLoaded", () => {
   eventButton(L4ScoreButton, "L4 Coral Scored");
   eventButton(AlgaeRemovedButton, "Algae Removed");
 
+  endEarlyButton.addEventListener("click", e => {
+    gameStartTime = Date.now() - gameLength * 1000;
+  });
+
   stateButton(cageStates, cageToggle, "cage", "Cage Climb");
 
   allianceToggle.addEventListener("click", e => {
@@ -135,11 +139,18 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   startButton.addEventListener("click", e => {
+
+    if (confirmRestart) {
+      if (!confirm("Are you sure you want to restart the game?")) {
+        return;
+      }
+    }
     gameStartTime = Date.now();
 
     gameFrameUpdate();
 
     startButton.hidden = true;
+    nextButton.hidden = true;
 
     saveData();
   });
@@ -169,6 +180,8 @@ function parseTime(gameTime) {
   return Math.floor(gameTime / 60000) + ":" + Math.floor(gameTime % 60000 / 1000).toString().padStart(2, "0") + "." + Math.floor(gameTime % 1000 / 10).toString().padStart(2, "0");
 }
 
+var confirmRestart = false;
+
 function gameFrameUpdate() {
   if (gameStartTime) {
     var gameTime = Date.now() - gameStartTime;
@@ -180,6 +193,9 @@ function gameFrameUpdate() {
       gameStartTime = null;
       gameStatus.textContent = "Game Over!";
       startButton.hidden = false;
+      startButton.innerText = "Restart";
+      confirmRestart = true;
+      nextButton.hidden = false;
       return;
     }
 

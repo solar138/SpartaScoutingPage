@@ -33,9 +33,14 @@ input {
     background-color:rgb(201, 201, 201);
 }
 
-.nav-button {
+.nav-button.left {
     position:absolute;
     left: 15px;
+    top: 30px;
+}
+.nav-button.right {
+    position:absolute;
+    right: 15px;
     top: 30px;
 }
 
