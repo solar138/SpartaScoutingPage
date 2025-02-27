@@ -14,14 +14,33 @@ input {
 .input-inline {
     height: 6vh;
     font-size: 3vh;
-    width: 8em;
     text-align: center;
     border:none;
+    width: 8em;
 }
 
-.nav-button {
+.map-button {
+    height: 6vh;
+    text-align: center;
+    border:none;
+    font-size: 2vh;
+    width: 6em;
+    border-radius:8px;
+    background-color: rgb(233, 233, 233);
+}
+
+.small {
+    background-color:rgb(201, 201, 201);
+}
+
+.nav-button.left {
     position:absolute;
     left: 15px;
+    top: 30px;
+}
+.nav-button.right {
+    position:absolute;
+    right: 15px;
     top: 30px;
 }
 
@@ -52,4 +71,15 @@ button.input-inline {
 
 #submit:disabled {
     background-color: rgb(252, 216, 216);
+}
+
+h3 {
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+}
+
+li {
+    font-family: 'Courier New', Courier, monospace;
+    text-align: left;
+    list-style: "- ";
 }
