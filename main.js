@@ -8,7 +8,6 @@ class ScoutingData {
     this.teamNumber = teamNumber;
     this.alliance = alliance;
     this.scouterName = scouterName;
-    this.cage = cageStates[0];
     this.events = [];
   }
 }
@@ -52,6 +51,11 @@ function stateButton(states, button, key, prefix, onclick) {
     if (onclick) onclick();
     saveData();
   });
+
+  if (!currentData[key]) {
+    currentData[key] = states[0];
+    saveData();
+  }
   
   button.innerHTML = prefix + ":<br>" + currentData[key] ?? states[0];
   if (onclick) onclick();
