@@ -1,8 +1,6 @@
 if (!localStorage) {
   alert("No localStorage available, data may be lost.");
-} 
-
-const cageStates = ["No Attempt", "Shallow Climb", "Deep Climb"];
+}
 
 class ScoutingData {
   constructor(roundNumber, teamNumber, scouterName, alliance) {
@@ -43,17 +41,20 @@ if (currentData.alliance == "blue") {
 
 document.getElementById("submit").disabled = !validateData();
 
-function stateButton(states, button, key, prefix) {
+function stateButton(states, button, key, prefix, onclick) {
 
   button.addEventListener("click", e => {
     var index = (states.indexOf(currentData[key] ?? states[0]) + 1) % states.length;
 
     button.innerHTML = prefix + ":<br>" + states[index];
     currentData[key] = states[index];
+
+    if (onclick) onclick();
     saveData();
   });
   
   button.innerHTML = prefix + ":<br>" + currentData[key] ?? states[0];
+  if (onclick) onclick();
 }
 
 function eventButton(button, name) {
@@ -124,10 +125,25 @@ document.addEventListener("DOMContentLoaded", () => {
   eventButton(AlgaeRemovedButton, "Algae Removed");
 
   endEarlyButton.addEventListener("click", e => {
-    gameStartTime = Date.now() - gameLength * 1000;
+    const oldStartTime = gameStartTime;
+    createLogEntry(Date.now() - gameStartTime, "Robot Disabled", () => {
+      gameStartTime = oldStartTime;
+      startButton.innerText = "Start";
+      confirmRestart = false;
+
+      gameFrameUpdate();
+  
+      startButton.hidden = true;
+      nextButton.hidden = true;
+    });
+    endGame();
   });
 
-  stateButton(cageStates, cageToggle, "cage", "Cage Climb");
+  stateButton(["No Attempt", "Shallow Climb", "Deep Climb"], cageToggle, "cage", "Cage Climb");
+  stateButton(["None", "Ground", "Feed", "Both"], coralIntakeDesign, "coralIntakeDesign", "Coral Intake", () => {
+    coralIntakeDirection.hidden = currentData.coralIntakeDesign == "None";
+  });
+  stateButton(["Horizontal", "Vertical"], coralIntakeDirection, "coralIntakeDirection", "Coral Intake");
 
   allianceToggle.addEventListener("click", e => {
     if (currentData.alliance == "red") {
@@ -185,6 +201,30 @@ function parseTime(gameTime) {
 }
 
 var confirmRestart = false;
+var summary = {};
+
+function endGame() {
+  gameStartTime = null;
+  gameStatus.textContent = "Game Over!";
+  startButton.hidden = false;
+  startButton.innerText = "Restart";
+  confirmRestart = true;
+  nextButton.hidden = false;
+
+  summary = {};
+  for (var event of currentData.events) {
+    summary[event.name] = (summary[event.name] ?? 0) + 1;
+  }
+
+  for (var event in summary) {
+    var li = document.createElement("li");
+    li.id = `summary${event}`;
+    var span = document.createElement("span");
+    span.innerText = `${event}: ${summary[event]}`;
+    li.appendChild(span);
+    summaryBox.insertBefore(li, summaryBox.firstChild);
+  }
+}
 
 function gameFrameUpdate() {
   if (gameStartTime) {
@@ -194,12 +234,7 @@ function gameFrameUpdate() {
     gameStatus.textContent = gameTime < autoLength * 1000 ? "Auto" : "TeleOp";
 
     if (gameTime > gameLength * 1000) {
-      gameStartTime = null;
-      gameStatus.textContent = "Game Over!";
-      startButton.hidden = false;
-      startButton.innerText = "Restart";
-      confirmRestart = true;
-      nextButton.hidden = false;
+      endGame();
       return;
     }
 
