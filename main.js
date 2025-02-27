@@ -42,6 +42,20 @@ if (currentData.alliance == "blue") {
 document.getElementById("submit").disabled = !validateData();
 
 var bargeStates = ["No Attempt", "Robot Shoot", "Human Throw"];
+var cageStates = ["No Attempt", "Shallow Climb", "Deep Climb"];
+
+function toggleStates(states, button, key, prefix) {
+
+  button.addEventListener("click", e => {
+    var index = (states.indexOf(currentData[key] ?? states[0]) + 1) % states.length;
+
+    button.innerHTML = prefix + ":<br>" + states[index];
+    currentData[key] = states[index];
+    saveData();
+  });
+  
+  button.innerHTML = prefix + ":<br>" + currentData[key] ?? states[0];
+}
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -49,13 +63,8 @@ document.addEventListener("DOMContentLoaded", () => {
     loadPage(localStorage.currentPage);
   }
 
-  bargeToggle.addEventListener("click", e => {
-    var bargeIndex = (bargeStates.indexOf(currentData.bargeState ?? bargeStates[0]) + 1) % bargeStates.length;
-
-    bargeToggle.innerHTML = "Barge Net:<br>" + bargeStates[bargeIndex];
-    currentData.bargeState = bargeStates[bargeIndex];
-    saveData();
-  });
+  toggleStates(bargeStates, bargeToggle, "barge", "Barge Net");
+  toggleStates(cageStates, cageToggle, "cage", "Cage Climb");
 
   allianceToggle.addEventListener("click", e => {
     if (currentData.alliance == "red") {
@@ -104,7 +113,7 @@ function validateData() {
 function gameFrameUpdate() {
   if (gameStartTime) {
     var gameTime = Date.now() - gameStartTime;
-    const time = Math.floor(gameTime / 60000) + ":" + Math.floor(gameTime % 60000 / 1000).toString().padStart(2, "0") + ":" + Math.floor(gameTime % 1000 / 10).toString().padStart(2, "0");
+    const time = Math.floor(gameTime / 60000) + ":" + Math.floor(gameTime % 60000 / 1000).toString().padStart(2, "0") + "." + Math.floor(gameTime % 1000 / 10).toString().padStart(2, "0");
     timer.textContent = time;
     gameStatus.textContent = gameTime < autoLength * 1000 ? "Auto" : "TeleOp";
 

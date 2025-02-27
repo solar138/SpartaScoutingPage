@@ -27,14 +27,18 @@
     </div>
     <div id="page-2" hidden>
       <h1 style="font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;"><button class="nav-button left" onclick="loadPage(1)">←</button>Map</h1>
-      <h3 id="timerContainer"><span id="timer" style="text-align: right;">0:00:00</span> - <span style="text-align: left;" id="gameStatus">Not Started</span></h2>
+      <h3 id="timerContainer"><span id="timer" style="text-align: right;">0:00.00</span> - <span style="text-align: left;" id="gameStatus">Not Started</span></h2>
       <div id="map" style="width: calc(100%-1px); height: 400px; border: 1px solid black; margin: 0px;"></div>
       <button style="position: absolute; top: 123px; left: 10px; height: 8em; width: 8em;" id="coralIntakeButton" class="map-button">Coral Intake</button>
       <button style="position: absolute; top: calc(320px - 2.5em); left: calc(50% - 2.5em); height: 5em; width: 5em;" id="coralScoreButton" class="map-button">Coral Score</button>
       <button style="position: absolute; top: calc(520px - 8em); left: 10px; height: 8em; width: 8em;" id="processorScoreButton" class="map-button">Processor Score</button>
       <button style="position: absolute; top: 123px; left: calc(100% - 8em - 10px); height: 8em; width: 8em;" id="bargeToggle" class="map-button">Barge Net:<br>No Attempt</button>
-      <button style="position: absolute; top: calc(520px - 8em); left: calc(100% - 8em - 10px); height: 8em; width: 8em;" id="climbToggle" class="map-button">Cage Climb:<br>No Attempt</button>
+      <button style="position: absolute; top: calc(520px - 8em); left: calc(100% - 8em - 10px); height: 8em; width: 8em;" id="cageToggle" class="map-button">Cage Climb:<br>No Attempt</button>
       <button style="position: absolute; top: 150px; left: calc(50% - 2em); height: 4em; width: 4em; background-color: rgb(145, 231, 145); font-size: 4vh;" id="startButton" class="map-button">Start</button>
+      <h3>Log</h3>
+      <ul>
+        <li id="logEntry1"><button id="logEntry1">UNDO</button> Coral Intake @ 0:00.00</li>
+      </ul>
     </div>
   </body>
 </html>

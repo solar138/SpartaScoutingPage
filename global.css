@@ -63,7 +63,13 @@ button.input-inline {
     background-color: rgb(252, 216, 216);
 }
 
-#timerContainer {
+h3 {
     font-family: 'Courier New', Courier, monospace;
     font-weight: bold;
+}
+
+li {
+    font-family: 'Courier New', Courier, monospace;
+    text-align: left;
+    list-style: "- ";
 }
