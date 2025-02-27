@@ -9,7 +9,7 @@
 </head>
 <body>
   <div id="page-1">
-    <h1>Scouting Setup</h1>
+    <h1 style="font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;">Pre-Game</h1>
         <form id="setupForm">
           <label>Scouter Name<br><input onchange="currentData.scouterName = scouterName.value; saveData();" class="input-inline" type="text" id="scouterName" placeholder="name" required></label><br><br>
           <label>Team Number<br><input onchange="currentData.teamNumber = teamNumber.value; saveData();" class="input-inline number" type="number" id="teamNumber" placeholder="0000" required></label><br><br>
@@ -26,7 +26,7 @@
         </form>
     </div>
     <div id="page-2" hidden>
-      <h1 style="font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;"><button class="nav-button left" onclick="loadPage(1)">←</button>Map<button class="nav-button right" onclick="loadPage(3)">→</button></h1>
+      <h1 style="font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;"><button class="nav-button left" onclick="loadPage(1)">←</button>Game<button class="nav-button right" onclick="loadPage(3)">→</button></h1>
       <h3 id="timerContainer"><span id="timer" style="text-align: right;">0:00.00</span> - <span style="text-align: left;" id="gameStatus">Not Started</span></h2>
       <div id="map" style="width: calc(100%-1px); height: 400px; border: 1px solid black; margin: 0px;"></div>
       <button style="position: absolute; top: 123px; left: 10px; height: 8em; width: 8em;" id="coralIntakeButton" class="map-button">Coral Intake</button>
@@ -48,7 +48,7 @@
       </ul>
     </div>
     <div id="page-3" hidden>
-      <h1 style="font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;"><button class="nav-button left" onclick="loadPage(2)">←</button>Round Over</h1>
+      <h1 style="font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;"><button class="nav-button left" onclick="loadPage(2)">←</button>Post-Game</h1>
     </div>
   </body>
 </html>
