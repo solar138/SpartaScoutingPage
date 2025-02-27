@@ -41,11 +41,21 @@ if (currentData.alliance == "blue") {
 
 document.getElementById("submit").disabled = !validateData();
 
+var bargeStates = ["No Attempt", "Robot Shoot", "Human Throw"];
+
 document.addEventListener("DOMContentLoaded", () => {
 
   if (localStorage.currentPage) {
     loadPage(localStorage.currentPage);
   }
+
+  bargeToggle.addEventListener("click", e => {
+    var bargeIndex = (bargeStates.indexOf(currentData.bargeState ?? bargeStates[0]) + 1) % bargeStates.length;
+
+    bargeToggle.innerHTML = "Barge Net:<br>" + bargeStates[bargeIndex];
+    currentData.bargeState = bargeStates[bargeIndex];
+    saveData();
+  });
 
   allianceToggle.addEventListener("click", e => {
     if (currentData.alliance == "red") {
