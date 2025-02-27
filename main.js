@@ -207,11 +207,8 @@ function gameFrameUpdate() {
   }
 }
 
-var gameLength = 2*60 + 30;
-var autoLength = 15;
-// Shortened times for testing:
-// var gameLength = 6;
-// var autoLength = 3;
+const gameLength = 2*60 + 30;
+const autoLength = 15;
 var currentPage = 1;
 var gameStartTime = null;
 
