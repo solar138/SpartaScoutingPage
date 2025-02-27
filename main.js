@@ -101,6 +101,10 @@ document.addEventListener("DOMContentLoaded", () => {
     loadPage(localStorage.currentPage);
   }
 
+  if (!Array.isArray(currentData.events)){ 
+    currentData.events = [];
+  }
+
   for (var event of currentData.events) {
     const e = event;
     createLogEntry(e.time, e.name, () => {
