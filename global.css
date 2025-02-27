@@ -26,6 +26,11 @@ input {
     font-size: 2vh;
     width: 6em;
     border-radius:8px;
+    background-color: rgb(233, 233, 233);
+}
+
+.small {
+    background-color:rgb(201, 201, 201);
 }
 
 .nav-button {

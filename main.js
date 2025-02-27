@@ -113,6 +113,11 @@ document.addEventListener("DOMContentLoaded", () => {
   eventButton(processorScoreButton, "Processor Scored");
   eventButton(bargeHumanButton, "Barge by Human");
   eventButton(bargeRobotButton, "Barge by Robot");
+  eventButton(L1ScoreButton, "L1 Coral Scored");
+  eventButton(L2ScoreButton, "L2 Coral Scored");
+  eventButton(L3ScoreButton, "L3 Coral Scored");
+  eventButton(L4ScoreButton, "L4 Coral Scored");
+  eventButton(AlgaeRemovedButton, "Algae Removed");
 
   stateButton(cageStates, cageToggle, "cage", "Cage Climb");
 
