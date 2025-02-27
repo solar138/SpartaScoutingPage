@@ -101,6 +101,7 @@ function gameFrameUpdate() {
     if (gameTime > gameLength * 1000) {
       gameStartTime = null;
       gameStatus.textContent = "Game Over!";
+      startButton.hidden = false;
       return;
     }
 
