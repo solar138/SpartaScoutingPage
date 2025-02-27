@@ -9,7 +9,7 @@
 </head>
 <body>
   <div id="page-1">
-    <h1 style="font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;">Pre-Game</h1>
+    <h1 style="font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;">Pre-Game<button class="nav-button right" onclick="loadPage(2)">→</button></h1>
         <form id="setupForm">
           <label>Scouter Name<br><input onchange="currentData.scouterName = scouterName.value; saveData();" class="input-inline" type="text" id="scouterName" placeholder="name" required></label><br><br>
           <label>Team Number<br><input onchange="currentData.teamNumber = teamNumber.value; saveData();" class="input-inline number" type="number" id="teamNumber" placeholder="0000" required></label><br><br>
