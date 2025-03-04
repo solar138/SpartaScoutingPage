@@ -1,3 +1,6 @@
+const apikey = "tYekUbMgHsDcEblf230XxA7WmLMbxFxqALAleZIGZatgAeKCKh7RuaJ1EKGsURCf";
+const summaryKeys = {};
+
 if (!localStorage) {
   alert("No localStorage available, data may be lost.");
 }
@@ -40,28 +43,47 @@ if (currentData.alliance == "blue") {
 
 document.getElementById("submit").disabled = !validateData();
 
-function stateButton(states, button, key, prefix, onclick) {
+function textField(input, name, key, onchange) {
+  input.addEventListener("onchange", e => {
+    currentData[name] = input.value || input.innerHTML;
+    if (onchange) onchange();
+
+    saveData();
+
+    console.log("Test");
+  });
+  if (input.tagName == "TEXTAREA") {
+    input.textContent = currentData[name];
+  } else {
+    input.value = currentData[name];
+  }
+  summaryKeys[name] = key;
+}
+
+function stateButton(states, button, name, key, onclick) {
 
   button.addEventListener("click", e => {
-    var index = (states.indexOf(currentData[key] ?? states[0]) + 1) % states.length;
+    var index = (states.indexOf(currentData[name] ?? states[0]) + 1) % states.length;
 
-    button.innerHTML = prefix + ":<br>" + states[index];
-    currentData[key] = states[index];
+    button.innerHTML = name + ":<br>" + states[index];
+    currentData[name] = states[index];
 
     if (onclick) onclick();
     saveData();
   });
+
+  summaryKeys[name] = key;
 
   if (!currentData[key]) {
     currentData[key] = states[0];
     saveData();
   }
   
-  button.innerHTML = prefix + ":<br>" + currentData[key] ?? states[0];
+  button.innerHTML = name + ":<br>" + currentData[key] ?? states[0];
   if (onclick) onclick();
 }
 
-function eventButton(button, name) {
+function eventButton(button, name, key) {
 
   button.addEventListener("click", e => {
     var event = {
@@ -78,6 +100,8 @@ function eventButton(button, name) {
     });
     saveData();
   });
+
+  summaryKeys[name] = key;
 }
 
 var index = 0;
@@ -102,10 +126,6 @@ function createLogEntry(time, name, undo) {
 
 document.addEventListener("DOMContentLoaded", () => {
 
-  if (localStorage.currentPage) {
-    loadPage(localStorage.currentPage);
-  }
-
   if (!Array.isArray(currentData.events)){ 
     currentData.events = [];
   }
@@ -118,15 +138,17 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  eventButton(coralIntakeButton, "Coral Intaken");
-  eventButton(processorScoreButton, "Processor Scored");
-  eventButton(bargeHumanButton, "Barge by Human");
-  eventButton(bargeRobotButton, "Barge by Robot");
-  eventButton(L1ScoreButton, "L1 Coral Scored");
-  eventButton(L2ScoreButton, "L2 Coral Scored");
-  eventButton(L3ScoreButton, "L3 Coral Scored");
-  eventButton(L4ScoreButton, "L4 Coral Scored");
-  eventButton(AlgaeRemovedButton, "Algae Removed");
+  textField(notes, "notes", "n");
+
+  eventButton(coralIntakeButton, "Coral Intaken", "c");
+  eventButton(processorScoreButton, "Processor Scored", "p");
+  eventButton(bargeHumanButton, "Barge by Human", "h");
+  eventButton(bargeRobotButton, "Barge by Robot", "r");
+  eventButton(L1ScoreButton, "L1 Coral Scored", "1");
+  eventButton(L2ScoreButton, "L2 Coral Scored", "2");
+  eventButton(L3ScoreButton, "L3 Coral Scored", "3");
+  eventButton(L4ScoreButton, "L4 Coral Scored", "4");
+  eventButton(AlgaeRemovedButton, "Algae Removed", "a");
 
   endEarlyButton.addEventListener("click", e => {
     const oldStartTime = gameStartTime;
@@ -143,11 +165,11 @@ document.addEventListener("DOMContentLoaded", () => {
     endGame();
   });
 
-  stateButton(["No Attempt", "Shallow Climb", "Deep Climb"], cageToggle, "cage", "Cage Climb");
-  stateButton(["None", "Ground", "Feed", "Both"], coralIntakeDesign, "coralIntakeDesign", "Coral Intake", () => {
-    coralIntakeDirection.hidden = currentData.coralIntakeDesign == "None";
+  stateButton(["No Attempt", "Shallow Climb", "Deep Climb"], cageToggle, "Cage Climb", "cage");
+  stateButton(["None", "Ground", "Feed", "Both"], coralIntakeDesign, "Coral Intake", "ciD", () => {
+    coralIntakeDirection.hidden = currentData["Coral Intake"] == "None";
   });
-  stateButton(["Horizontal", "Vertical"], coralIntakeDirection, "coralIntakeDirection", "Coral Intake");
+  stateButton(["Horizontal", "Vertical"], coralIntakeDirection, "Coral Direction", "ciR");
 
   allianceToggle.addEventListener("click", e => {
     if (currentData.alliance == "red") {
@@ -188,6 +210,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     loadPage(2);
   });
+
+  if (localStorage.currentPage) {
+    loadPage(+localStorage.currentPage)
+  } else {
+    loadPage(1);
+  }
 });
 
 function saveData() {
@@ -207,18 +235,13 @@ function parseTime(gameTime) {
 var confirmRestart = false;
 var summary = {};
 
-function endGame() {
-  gameStartTime = null;
-  gameStatus.textContent = "Game Over!";
-  startButton.hidden = false;
-  startButton.innerText = "Restart";
-  confirmRestart = true;
-  nextButton.hidden = false;
-
+function summarize() {
   summary = {};
   for (var event of currentData.events) {
     summary[event.name] = (summary[event.name] ?? 0) + 1;
   }
+
+  summaryBox.innerHTML = `<br><li>Scouter: ${currentData.scouterName}</li><li>Team: ${currentData.teamNumber} (${currentData.alliance})</li><li>Round: ${currentData.roundNumber}</li>`;
 
   for (var event in summary) {
     var li = document.createElement("li");
@@ -228,6 +251,37 @@ function endGame() {
     li.appendChild(span);
     summaryBox.insertBefore(li, summaryBox.firstChild);
   }
+
+  var s = summary;
+  summary = { m: currentData.scouterName, t: currentData.teamNumber, a: currentData.a, };
+  for (var event in s) {
+    summary[summaryKeys[event]] = s[event];
+  }
+}
+
+function endGame() {
+  gameStartTime = null;
+  gameStatus.textContent = "Game Over!";
+  startButton.hidden = false;
+  startButton.innerText = "Restart";
+  confirmRestart = true;
+  nextButton.hidden = false;
+
+  summarize();
+
+  exportData();
+}
+
+async function getRounds(event) {
+  return await (await fetch(`https://www.thebluealliance.com/api/v3/event/${event}/matches?X-TBA-Auth-Key=${apikey}`)).json();
+}
+
+localStorage.rounds = getRounds("2024wabon");
+
+function exportData() {
+  summarize();
+  qrcode.innerHTML = "";
+  new QRCode("qrcode", JSON.stringify(summary));
 }
 
 function gameFrameUpdate() {
@@ -235,7 +289,12 @@ function gameFrameUpdate() {
     var gameTime = Date.now() - gameStartTime;
     const time = parseTime(gameTime);
     timer.textContent = time;
+    var oldStatus = gameStatus.textContent;
     gameStatus.textContent = gameTime < autoLength * 1000 ? "Auto" : "TeleOp";
+
+    if (oldStatus == "Auto" && gameStatus.textContent == "TeleOp") {
+      currentData.autoEvents = JSON.parse(JSON.stringify(currentData.events));
+    }
 
     if (gameTime > gameLength * 1000) {
       endGame();
@@ -248,7 +307,7 @@ function gameFrameUpdate() {
 
 const gameLength = 2*60 + 30;
 const autoLength = 15;
-var currentPage = 1;
+var currentPage = 0;
 var gameStartTime = null;
 
 function loadPage(page) {
@@ -257,4 +316,9 @@ function loadPage(page) {
   currentPage = page;
 
   localStorage.currentPage = page;
+
+  switch (page) {
+    case 3: endGame();
+    case 4: exportData();
+  }
 }
