@@ -16,14 +16,15 @@
   <div id="page-1" hidden>
     <h1 style="font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;">Pre-Game<button class="nav-button right" onclick="loadPage(2)">→</button></h1>
         <form id="setupForm">
-          <label>Scouter Name<br><input onchange="currentData.scouterName = scouterName.value; localStorage.scouterName = scouterName.value; saveData();" class="input-inline" type="text" id="scouterName" placeholder="name" required></label><br><br>
-          <label>Round Number<br><input onchange="currentData.roundNumber = roundNumber.value; saveData(); updateRound();"  class="input-inline number" type="number" id="roundNumber" placeholder="0000" required></label><br><button class="input-inline" type="button"
+          <label>Scouter Name<br><input onchange="currentData.scouterName = scouterName.value; localStorage.scouterName = scouterName.value; saveData();" class="input-inline" type="text" id="scouterName" placeholder="YOUR NAME" required></label><br><br>
+          <label>Event Key<br><input oninput="eventKey = eventKeyInput.value.toLowerCase(); localStorage.eventKey = eventKey; getAPIData(); saveData();" class="input-inline" type="text" id="eventKeyInput" placeholder="EVENT KEY"></label><br><br>
+          <label>Round Number<br><input oninput="currentData.roundNumber = roundNumber.value; saveData(); updateRound();"  class="input-inline number" type="number" id="roundNumber" placeholder="0000" required></label><br><button class="input-inline" type="button"
             onclick="currentData.roundNumber++; roundNumber.value = currentData.roundNumber; saveData(); updateRound();">+1</button><br><br><br>
           <div id="teamSelector" hidden>
           <button id="team1r" class="input-inline red" onclick="selectTeamR(1);" type="button">+1</button><button id="team1b" class="input-inline blue" onclick="selectTeamB(1);" type="button">+1</button><br>
           <button id="team2r" class="input-inline red" onclick="selectTeamR(2);" type="button">+1</button><button id="team2b" class="input-inline blue" onclick="selectTeamB(2);" type="button">+1</button><br>
           <button id="team3r" class="input-inline red" onclick="selectTeamR(3);" type="button">+1</button><button id="team3b" class="input-inline blue" onclick="selectTeamB(3);" type="button">+1</button><br><br></div>
-          <label>Team Number<br><input onchange="currentData.teamNumber = teamNumber.value; saveData(); updateTeam(); "
+          <label>Team Number<br><input oninput="currentData.teamNumber = teamNumber.value; saveData(); updateTeam(); "
               class="input-inline number" type="number" id="teamNumber" placeholder="0000" required></label><br><br>
           <label>Team Name / Origin<br><input class="input-inline" id="teamName" placeholder="Unknown" disabled></label>
           <label><input class="input-inline" id="teamOrigin" placeholder="Unknown" disabled></label><br><br>
@@ -76,6 +77,7 @@
           onclick="loadPage(3)">←</button>QR Code</h1>
       <h3>Please screenshot and save.</h3>
       <div id="qrcode"></div><br>
+      <h3><a id="importerURL" href="/">Open importer (Requires internet)</a></h3>
       <button class="input-inline" id="newGame" type="submit">New Game</button>
     </div>
   </body>

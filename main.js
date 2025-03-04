@@ -1,7 +1,6 @@
 const apikey = "tYekUbMgHsDcEblf230XxA7WmLMbxFxqALAleZIGZatgAeKCKh7RuaJ1EKGsURCf";
 const summaryKeys = {};
 const stateButtons = [];
-const eventKey = "2024wasam";
 const statesUSA = {
   "Alabama": "AL",
   "Alaska": "AK",
@@ -55,6 +54,9 @@ const statesUSA = {
   "Wyoming": "WY"
 };
 
+var year = 2025;
+var eventKey = "2024wasam";
+
 
 if (!localStorage) {
   alert("No localStorage available, data may be lost.");
@@ -87,6 +89,7 @@ if (data.length == 0) {
 teamNumber.value = currentData.teamNumber;
 roundNumber.value = currentData.roundNumber;
 scouterName.value = currentData.scouterName || localStorage.scouterName;
+eventKeyInput.value = localStorage.eventKey;
 notes.textContent = currentData.notes;
 
 if (currentData.alliance == "blue") {
@@ -283,7 +286,7 @@ function saveData() {
 }
 
 function validateData() {
-  return currentData.teamNumber && currentData.alliance && currentData.roundNumber && currentData.scouterName;
+  return currentData.teamNumber && currentData.alliance && currentData.roundNumber && currentData.scouterName && (!teams || teams[currentData.teamNumber]);
 }
 
 function parseTime(gameTime) {
@@ -315,7 +318,7 @@ function summarize() {
   }
 
   var s = summary;
-  summary = { m: currentData.scouterName, t: currentData.teamNumber, a: currentData.a, };
+  summary = { m: currentData.scouterName, t: currentData.teamNumber, a: currentData.alliance, };
   for (var event in s) {
     summary[summaryKeys[event]] = s[event];
   }
@@ -332,47 +335,81 @@ function endGame() {
   summarize();
 
   exportData();
-} 
+}
 
 async function getRounds(event) {
   return await (await fetch(`https://www.thebluealliance.com/api/v3/event/${event}/matches?X-TBA-Auth-Key=${apikey}`)).json();
 }
-async function getTeams(district) {
-  return await (await fetch(`https://www.thebluealliance.com/api/v3/district/${district}/teams?X-TBA-Auth-Key=${apikey}`)).json();
+
+async function getYear() {
+  return (await (await fetch(`https://www.thebluealliance.com/api/v3/status?X-TBA-Auth-Key=${apikey}`)).json()).current_season;
+}
+
+async function getTeams() {
+  var teams = [];
+  var newTeams = [];
+  var i = 0;
+  do {
+    newTeams = await (await fetch(`https://www.thebluealliance.com/api/v3/teams/${i}?X-TBA-Auth-Key=${apikey}`)).json();
+    teams = teams.concat(newTeams);
+    i++;
+  } while (newTeams.length > 0)
+  return teams;
 }
 async function getEvent(event) {
   return await (await fetch(`https://www.thebluealliance.com/api/v3/event/${event}?X-TBA-Auth-Key=${apikey}`)).json();
 }
 
-var rounds;
-try {
-  rounds = JSON.parse(localStorage.rounds);
-} catch {
-  rounds = {};
-}
-getRounds(eventKey).then(value => {
-  localStorage.rounds = JSON.stringify(value);
-  rounds = value;
+var rounds = localStorage.rounds;
+var district = localStorage.district;
+var teams = localStorage.teams;
+
+getYear().then(value => {
+  year = value;
+  if (+localStorage.teamsYear != year)
+    getTeams().then(value => {
+      teams = {};
+      for (var team of value) {
+        teams[team.team_number] = team;
+      }
+      localStorage.teams = JSON.stringify(teams);
+      localStorage.teamsYear = year;
+      updateRound();
+    });
+
+  getAPIData();
 });
 
-var district = localStorage.district;
-var teams;
-try {
-  teams = JSON.parse(localStorage.teams);
-} catch {
-  teams = {};
-}
-getEvent(eventKey).then(value => {
-  localStorage.district = value.district.key;
-  district = value.district.key;
-  getTeams(district).then(value => {
-    teams = {};
-    for (var team of value) {
-      teams[team.team_number] = team;
-    }
-    localStorage.teams = JSON.stringify(teams);
+function getAPIData() {
+  try {
+    rounds = JSON.parse(localStorage.rounds);
+  } catch {
+    rounds = {};
+  }
+  getRounds(eventKey).then(value => {
+    localStorage.rounds = JSON.stringify(value);
+    rounds = value;
+    updateRound();
   });
-});
+
+  try {
+    teams = JSON.parse(localStorage.teams);
+  } catch {
+    teams = {};
+  }
+  getEvent(eventKey).then(value => {
+    if (!value.Error) {
+      if (value.district) {
+        localStorage.district = value.district.key;
+        district = value.district.key;
+      }
+      eventKeyInput.className = "input-inline";
+    } else {
+      eventKeyInput.className = "input-inline error";
+      return;
+    } 
+  });
+}
 
 function exportData() {
   summarize();
@@ -383,6 +420,7 @@ function exportData() {
   } catch {
     alert("QRCode could not be generated. Data saved to localStorage.");
   }
+  importerURL.href = url;
 }
 
 function importData() {
@@ -453,7 +491,7 @@ function updateAlliance() {
 function updateRound() {
   var round = rounds[currentData.roundNumber - 1];
 
-  if (round) {
+  if (round && round.alliances) {
     teamSelector.hidden = false;
 
     team1r.innerText = round.alliances.red.team_keys[0].slice(3);
@@ -471,6 +509,8 @@ function updateTeam() {
 
   teamName.value = team ? team.nickname : "Unknown";
   teamOrigin.value = team ? team.city + ", " + (statesUSA[team.state_prov] ?? team.state_prov) : "Unknown";
+
+  teamNumber.className = team ? "input-inline number" : "input-inline number error";
 }
 
 function selectTeamR(num) {

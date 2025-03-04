@@ -10,6 +10,10 @@ img {
     width: 100%;
 }
 
+.error {
+    background-color: rgb(255, 186, 186);
+}
+
 input {
     font-family: "Agency FB",'Courier New', Courier, monospace;
     font-weight: bold;

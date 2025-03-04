@@ -1,60 +1,45 @@
 const apikey = "tYekUbMgHsDcEblf230XxA7WmLMbxFxqALAleZIGZatgAeKCKh7RuaJ1EKGsURCf";
-const summaryKeys = {};
-const stateButtons = [];
-const eventKey = "2024wasam";
-const statesUSA = {
-    "Alabama": "AL",
-    "Alaska": "AK",
-    "Arizona": "AZ",
-    "Arkansas": "AR",
-    "California": "CA",
-    "Colorado": "CO",
-    "Connecticut": "CT",
-    "Delaware": "DE",
-    "Florida": "FL",
-    "Georgia": "GA",
-    "Hawaii": "HI",
-    "Idaho": "ID",
-    "Illinois": "IL",
-    "Indiana": "IN",
-    "Iowa": "IA",
-    "Kansas": "KS",
-    "Kentucky": "KY",
-    "Louisiana": "LA",
-    "Maine": "ME",
-    "Maryland": "MD",
-    "Massachusetts": "MA",
-    "Michigan": "MI",
-    "Minnesota": "MN",
-    "Mississippi": "MS",
-    "Missouri": "MO",
-    "Montana": "MT",
-    "Nebraska": "NE",
-    "Nevada": "NV",
-    "New Hampshire": "NH",
-    "New Jersey": "NJ",
-    "New Mexico": "NM",
-    "New York": "NY",
-    "North Carolina": "NC",
-    "North Dakota": "ND",
-    "Ohio": "OH",
-    "Oklahoma": "OK",
-    "Oregon": "OR",
-    "Pennsylvania": "PA",
-    "Rhode Island": "RI",
-    "South Carolina": "SC",
-    "South Dakota": "SD",
-    "Tennessee": "TN",
-    "Texas": "TX",
-    "Utah": "UT",
-    "Vermont": "VT",
-    "Virginia": "VA",
-    "Washington": "WA",
-    "West Virginia": "WV",
-    "Wisconsin": "WI",
-    "Wyoming": "WY"
+const summaryKeys = {
+    "Coral Intaken": "c",
+    "Processor Scored": "p",
+    "Barge by Human": "h",
+    "Barge by Robot": "r",
+    "L1 Coral Scored": "1",
+    "L2 Coral Scored": "2",
+    "L3 Coral Scored": "3",
+    "L4 Coral Scored": "4",
+    "Algae Removed": "g",
+    "Cage Climb": "cage",
+    "Coral Intake": "ciD",
+    "Coral Direction": "ciR"
 };
-
+const stateButtons = [
+    {
+        "states": [
+            "No Attempt",
+            "Shallow Climb",
+            "Deep Climb"
+        ],
+        "name": "Cage Climb"
+    },
+    {
+        "states": [
+            "None",
+            "Ground",
+            "Feed",
+            "Both"
+        ],
+        "name": "Coral Intake"
+    },
+    {
+        "states": [
+            "Horizontal",
+            "Vertical"
+        ],
+        "name": "Coral Direction"
+    }
+];
+const eventKey = "2024wasam"; // TODO: Change this to 2025wabon before competition. Add some way to automatically get event info.
 
 if (!localStorage) {
     alert("No localStorage available, data may be lost.");
