@@ -17,9 +17,15 @@
     <h1 style="font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;">Pre-Game<button class="nav-button right" onclick="loadPage(2)">→</button></h1>
         <form id="setupForm">
           <label>Scouter Name<br><input onchange="currentData.scouterName = scouterName.value; saveData();" class="input-inline" type="text" id="scouterName" placeholder="name" required></label><br><br>
-          <label>Team Number<br><input onchange="currentData.teamNumber = teamNumber.value; saveData();" class="input-inline number" type="number" id="teamNumber" placeholder="0000" required></label><br><br>
-          <label>Round Number<br><input onchange="currentData.roundNumber = roundNumber.value; saveData();"  class="input-inline number" type="number" id="roundNumber" placeholder="0000" required></label><br>
-          <button class="input-inline" type="button" onclick="currentData.roundNumber++; roundNumber.value = currentData.roundNumber; saveData(); ">+1</button><br><br>
+          <label>Round Number<br><input onchange="currentData.roundNumber = roundNumber.value; saveData(); updateRound();"  class="input-inline number" type="number" id="roundNumber" placeholder="0000" required></label><br><button class="input-inline" type="button"
+            onclick="currentData.roundNumber++; roundNumber.value = currentData.roundNumber; saveData(); updateRound();">+1</button><br><br><br>
+          <div id="teamSelector" hidden>
+          <button id="team1r" class="input-inline red" onclick="selectTeamR(1);" type="button">+1</button><button id="team1b" class="input-inline blue" onclick="selectTeamB(1);" type="button">+1</button><br>
+          <button id="team2r" class="input-inline red" onclick="selectTeamR(2);" type="button">+1</button><button id="team2b" class="input-inline blue" onclick="selectTeamB(2);" type="button">+1</button><br>
+          <button id="team3r" class="input-inline red" onclick="selectTeamR(3);" type="button">+1</button><button id="team3b" class="input-inline blue" onclick="selectTeamB(3);" type="button">+1</button><br><br></div>
+          <label>Team Number<br><input onchange="currentData.teamNumber = teamNumber.value; saveData();"
+              class="input-inline number" type="number" id="teamNumber" placeholder="0000" required></label><br><br>
+          <label>Team Name<br><input onchange="currentData.teamNumber = teamNumber.value; saveData();" class="input-inline" id="teamName" placeholder="Unknown" disabled></label><br><br>
           <label>Alliance<br>
             <select hidden id="alliance">
               <option value="Red">Red</option>

@@ -1,7 +1,7 @@
 const apikey = "tYekUbMgHsDcEblf230XxA7WmLMbxFxqALAleZIGZatgAeKCKh7RuaJ1EKGsURCf";
 const summaryKeys = {};
-const stateKeys = {};
 const stateButtons = [];
+const eventKey = "2024wasam";
 
 if (!localStorage) {
   alert("No localStorage available, data may be lost.");
@@ -214,6 +214,9 @@ document.addEventListener("DOMContentLoaded", () => {
     loadPage(2);
   });
 
+  updateTeam();
+  updateRound();
+
   if (localStorage.currentPage) {
     loadPage(+localStorage.currentPage)
   } else {
@@ -277,13 +280,47 @@ function endGame() {
   summarize();
 
   exportData();
-}
+} 
 
 async function getRounds(event) {
   return await (await fetch(`https://www.thebluealliance.com/api/v3/event/${event}/matches?X-TBA-Auth-Key=${apikey}`)).json();
 }
+async function getTeams(district) {
+  return await (await fetch(`https://www.thebluealliance.com/api/v3/district/${district}/teams?X-TBA-Auth-Key=${apikey}`)).json();
+}
+async function getEvent(event) {
+  return await (await fetch(`https://www.thebluealliance.com/api/v3/event/${event}?X-TBA-Auth-Key=${apikey}`)).json();
+}
 
-localStorage.rounds = getRounds("2024wabon");
+var rounds;
+try {
+  rounds = JSON.parse(localStorage.rounds);
+} catch {
+  rounds = {};
+}
+getRounds(eventKey).then(value => {
+  localStorage.rounds = JSON.stringify(value);
+  rounds = value;
+});
+
+var district = localStorage.district;
+var teams;
+try {
+  teams = JSON.parse(localStorage.teams);
+} catch {
+  teams = {};
+}
+getEvent(eventKey).then(value => {
+  localStorage.district = value.district.key;
+  district = value.district.key;
+  getTeams(district).then(value => {
+    teams = {};
+    for (var team of value) {
+      teams[team.team_number] = team;
+    }
+    localStorage.teams = JSON.stringify(teams);
+  });
+});
 
 function exportData() {
   summarize();
@@ -344,4 +381,43 @@ function loadPage(page) {
     case 3: endGame();
     case 4: exportData();
   }
+}
+
+function updateRound() {
+  var round = rounds[currentData.roundNumber - 1];
+
+  if (round) {
+    teamSelector.hidden = false;
+
+    team1r.innerText = round.alliances.red.team_keys[0].slice(3);
+    team2r.innerText = round.alliances.red.team_keys[1].slice(3);
+    team3r.innerText = round.alliances.red.team_keys[2].slice(3);
+    team1b.innerText = round.alliances.blue.team_keys[0].slice(3);
+    team2b.innerText = round.alliances.blue.team_keys[1].slice(3);
+    team3b.innerText = round.alliances.blue.team_keys[2].slice(3);
+  } else {
+    teamSelector.hidden = true;
+  }
+}
+function updateTeam() {
+  var team = teams[currentData.teamNumber];
+
+  teamName.value = team ? team.nickname : "Unknown";
+}
+
+function selectTeamR(num) {
+  currentData.teamNumber = window["team" + num + "r"].innerText;
+
+  teamNumber.value = currentData.teamNumber;
+  updateTeam();
+
+  saveData();
+}
+function selectTeamB(num) {
+  currentData.teamNumber = window["team" + num + "b"].innerText;
+  updateTeam();
+
+  teamNumber.value = currentData.teamNumber;
+
+  saveData();
 }
