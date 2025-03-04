@@ -1,5 +1,7 @@
 const apikey = "tYekUbMgHsDcEblf230XxA7WmLMbxFxqALAleZIGZatgAeKCKh7RuaJ1EKGsURCf";
 const summaryKeys = {};
+const stateKeys = {};
+const stateButtons = [];
 
 if (!localStorage) {
   alert("No localStorage available, data may be lost.");
@@ -32,6 +34,7 @@ if (data.length == 0) {
 teamNumber.value = currentData.teamNumber;
 roundNumber.value = currentData.roundNumber;
 scouterName.value = currentData.scouterName;
+notes.textContent = currentData.notes;
 
 if (currentData.alliance == "blue") {
   allianceToggle.innerText = "Blue";
@@ -44,13 +47,11 @@ if (currentData.alliance == "blue") {
 document.getElementById("submit").disabled = !validateData();
 
 function textField(input, name, key, onchange) {
-  input.addEventListener("onchange", e => {
+  input.addEventListener("onChange", e => {
     currentData[name] = input.value || input.innerHTML;
     if (onchange) onchange();
 
     saveData();
-
-    console.log("Test");
   });
   if (input.tagName == "TEXTAREA") {
     input.textContent = currentData[name];
@@ -58,15 +59,17 @@ function textField(input, name, key, onchange) {
     input.value = currentData[name];
   }
   summaryKeys[name] = key;
+
+  stateButtons.push({ input, name });
 }
 
 function stateButton(states, button, name, key, onclick) {
 
   button.addEventListener("click", e => {
-    var index = (states.indexOf(currentData[name] ?? states[0]) + 1) % states.length;
+    var index = (Number.isInteger(currentData[name]) ? currentData[name] + 1 : 0) % states.length;
 
     button.innerHTML = name + ":<br>" + states[index];
-    currentData[name] = states[index];
+    currentData[name] = index;
 
     if (onclick) onclick();
     saveData();
@@ -74,13 +77,15 @@ function stateButton(states, button, name, key, onclick) {
 
   summaryKeys[name] = key;
 
-  if (!currentData[key]) {
-    currentData[key] = states[0];
+  if (!currentData[name]) {
+    currentData[name] = states[0];
     saveData();
   }
   
-  button.innerHTML = name + ":<br>" + currentData[key] ?? states[0];
+  button.innerHTML = name + ":<br>" + states[currentData[name]] ?? states[0];
   if (onclick) onclick();
+
+  stateButtons.push({states, name});
 }
 
 function eventButton(button, name, key) {
@@ -138,8 +143,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  textField(notes, "notes", "n");
-
   eventButton(coralIntakeButton, "Coral Intaken", "c");
   eventButton(processorScoreButton, "Processor Scored", "p");
   eventButton(bargeHumanButton, "Barge by Human", "h");
@@ -148,7 +151,7 @@ document.addEventListener("DOMContentLoaded", () => {
   eventButton(L2ScoreButton, "L2 Coral Scored", "2");
   eventButton(L3ScoreButton, "L3 Coral Scored", "3");
   eventButton(L4ScoreButton, "L4 Coral Scored", "4");
-  eventButton(AlgaeRemovedButton, "Algae Removed", "a");
+  eventButton(AlgaeRemovedButton, "Algae Removed", "g");
 
   endEarlyButton.addEventListener("click", e => {
     const oldStartTime = gameStartTime;
@@ -241,13 +244,17 @@ function summarize() {
     summary[event.name] = (summary[event.name] ?? 0) + 1;
   }
 
+  for (var input of stateButtons) {
+    summary[input.name] = currentData[input.name];
+  }
+
   summaryBox.innerHTML = `<br><li>Scouter: ${currentData.scouterName}</li><li>Team: ${currentData.teamNumber} (${currentData.alliance})</li><li>Round: ${currentData.roundNumber}</li>`;
 
   for (var event in summary) {
     var li = document.createElement("li");
     li.id = `summary${event}`;
     var span = document.createElement("span");
-    span.innerText = `${event}: ${summary[event]}`;
+    span.innerText = `${event}: ${summary[event] ?? currentData[event]}`;
     li.appendChild(span);
     summaryBox.insertBefore(li, summaryBox.firstChild);
   }
@@ -281,7 +288,23 @@ localStorage.rounds = getRounds("2024wabon");
 function exportData() {
   summarize();
   qrcode.innerHTML = "";
-  new QRCode("qrcode", JSON.stringify(summary));
+  var url = "https://sparta-scouting-page.vercel.app/import/?" + encodeURI(JSON.stringify(summary));
+  new QRCode("qrcode", url);
+  console.log(url);
+}
+
+function importData() {
+  var shortData = JSON.parse(decodeURI(location.search).slice(1));
+  summary = {scouterName: shortData.m, teamNumber: shortData.t, alliance: shortData.a}
+
+  for (var key in summaryKeys) {
+    summary[key] = shortData[summaryKeys[key]] ?? 0;
+  }
+
+  for (var input of stateButtons) {
+    summary[input.name] = input.states[summary[input.name]];
+  }
+  return summary;
 }
 
 function gameFrameUpdate() {
