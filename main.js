@@ -134,7 +134,7 @@ function stateButton(states, button, name, key, onclick) {
   summaryKeys[name] = key;
 
   if (!currentData[name]) {
-    currentData[name] = states[0];
+    currentData[name] = 0;
     saveData();
   }
   
@@ -226,7 +226,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   newGame.addEventListener("click", e => {
     currentData = new ScoutingData(currentData.roundNumber + 1, null, currentData.scouterName, null);
+    teamNumber.value = "";
+    roundNumber.value = currentData.roundNumber;
+    startButton.innerText = "Start";
+    nextButton.hidden = true;
+    confirmRestart = false;
     data.push(currentData);
+    log.innerHTML = "";
     saveData();
     loadPage(1);
   });
@@ -362,7 +368,7 @@ async function getEvent(event) {
 
 var rounds = localStorage.rounds;
 var district = localStorage.district;
-var teams = localStorage.teams;
+var teams = JSON.parse(localStorage.teams);
 
 getYear().then(value => {
   year = value;
@@ -508,7 +514,7 @@ function updateTeam() {
   var team = teams[currentData.teamNumber];
 
   teamName.value = team ? team.nickname : "Unknown";
-  teamOrigin.value = team ? team.city + ", " + (statesUSA[team.state_prov] ?? team.state_prov) : "Unknown";
+  teamOrigin.value = team && team.city ? team.city + ", " + (statesUSA[team.state_prov] ?? team.state_prov) : "Unknown";
 
   teamNumber.className = team ? "input-inline number" : "input-inline number error";
 }
