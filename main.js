@@ -2,6 +2,59 @@ const apikey = "tYekUbMgHsDcEblf230XxA7WmLMbxFxqALAleZIGZatgAeKCKh7RuaJ1EKGsURCf
 const summaryKeys = {};
 const stateButtons = [];
 const eventKey = "2024wasam";
+const statesUSA = {
+  "Alabama": "AL",
+  "Alaska": "AK",
+  "Arizona": "AZ",
+  "Arkansas": "AR",
+  "California": "CA",
+  "Colorado": "CO",
+  "Connecticut": "CT",
+  "Delaware": "DE",
+  "Florida": "FL",
+  "Georgia": "GA",
+  "Hawaii": "HI",
+  "Idaho": "ID",
+  "Illinois": "IL",
+  "Indiana": "IN",
+  "Iowa": "IA",
+  "Kansas": "KS",
+  "Kentucky": "KY",
+  "Louisiana": "LA",
+  "Maine": "ME",
+  "Maryland": "MD",
+  "Massachusetts": "MA",
+  "Michigan": "MI",
+  "Minnesota": "MN",
+  "Mississippi": "MS",
+  "Missouri": "MO",
+  "Montana": "MT",
+  "Nebraska": "NE",
+  "Nevada": "NV",
+  "New Hampshire": "NH",
+  "New Jersey": "NJ",
+  "New Mexico": "NM",
+  "New York": "NY",
+  "North Carolina": "NC",
+  "North Dakota": "ND",
+  "Ohio": "OH",
+  "Oklahoma": "OK",
+  "Oregon": "OR",
+  "Pennsylvania": "PA",
+  "Rhode Island": "RI",
+  "South Carolina": "SC",
+  "South Dakota": "SD",
+  "Tennessee": "TN",
+  "Texas": "TX",
+  "Utah": "UT",
+  "Vermont": "VT",
+  "Virginia": "VA",
+  "Washington": "WA",
+  "West Virginia": "WV",
+  "Wisconsin": "WI",
+  "Wyoming": "WY"
+};
+
 
 if (!localStorage) {
   alert("No localStorage available, data may be lost.");
@@ -175,15 +228,7 @@ document.addEventListener("DOMContentLoaded", () => {
   stateButton(["Horizontal", "Vertical"], coralIntakeDirection, "Coral Direction", "ciR");
 
   allianceToggle.addEventListener("click", e => {
-    if (currentData.alliance == "red") {
-      currentData.alliance = "blue";
-      allianceToggle.innerText = "Blue";
-      allianceToggle.className = "input-inline blue";
-    } else {
-      currentData.alliance = "red";
-      allianceToggle.innerText = "Red";
-      allianceToggle.className = "input-inline red";
-    }
+    updateAlliance();
     saveData();
   });
 
@@ -383,6 +428,18 @@ function loadPage(page) {
   }
 }
 
+function updateAlliance() {
+  if (currentData.alliance == "red") {
+    currentData.alliance = "blue";
+    allianceToggle.innerText = "Blue";
+    allianceToggle.className = "input-inline blue";
+  } else {
+    currentData.alliance = "red";
+    allianceToggle.innerText = "Red";
+    allianceToggle.className = "input-inline red";
+  }
+}
+
 function updateRound() {
   var round = rounds[currentData.roundNumber - 1];
 
@@ -403,21 +460,28 @@ function updateTeam() {
   var team = teams[currentData.teamNumber];
 
   teamName.value = team ? team.nickname : "Unknown";
+  teamOrigin.value = team ? team.city + ", " + (statesUSA[team.state_prov] ?? team.state_prov) : "Unknown";
 }
 
 function selectTeamR(num) {
   currentData.teamNumber = window["team" + num + "r"].innerText;
 
   teamNumber.value = currentData.teamNumber;
+  currentData.alliance = "blue";
+
+  updateAlliance();
   updateTeam();
 
   saveData();
 }
 function selectTeamB(num) {
   currentData.teamNumber = window["team" + num + "b"].innerText;
-  updateTeam();
 
   teamNumber.value = currentData.teamNumber;
+  currentData.alliance = "red";
+
+  updateTeam();
+  updateAlliance();
 
   saveData();
 }

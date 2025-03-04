@@ -23,9 +23,10 @@
           <button id="team1r" class="input-inline red" onclick="selectTeamR(1);" type="button">+1</button><button id="team1b" class="input-inline blue" onclick="selectTeamB(1);" type="button">+1</button><br>
           <button id="team2r" class="input-inline red" onclick="selectTeamR(2);" type="button">+1</button><button id="team2b" class="input-inline blue" onclick="selectTeamB(2);" type="button">+1</button><br>
           <button id="team3r" class="input-inline red" onclick="selectTeamR(3);" type="button">+1</button><button id="team3b" class="input-inline blue" onclick="selectTeamB(3);" type="button">+1</button><br><br></div>
-          <label>Team Number<br><input onchange="currentData.teamNumber = teamNumber.value; saveData();"
+          <label>Team Number<br><input onchange="currentData.teamNumber = teamNumber.value; saveData(); updateTeam(); "
               class="input-inline number" type="number" id="teamNumber" placeholder="0000" required></label><br><br>
-          <label>Team Name<br><input onchange="currentData.teamNumber = teamNumber.value; saveData();" class="input-inline" id="teamName" placeholder="Unknown" disabled></label><br><br>
+          <label>Team Name / Origin<br><input class="input-inline" id="teamName" placeholder="Unknown" disabled></label>
+          <label><input class="input-inline" id="teamOrigin" placeholder="Unknown" disabled></label><br><br>
           <label>Alliance<br>
             <select hidden id="alliance">
               <option value="Red">Red</option>

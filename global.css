@@ -7,7 +7,7 @@ body {
 }
 
 input {
-    font-family: 'Courier New', Courier, monospace;
+    font-family: "Agency FB",'Courier New', Courier, monospace;
     font-weight: bold;
 }
 
@@ -17,6 +17,7 @@ input {
     text-align: center;
     border:none;
     width: 8em;
+    font-family: "Agency FB", 'Courier New', Courier, monospace;
 }
 
 .map-button {
