@@ -6,6 +6,10 @@ body {
     text-align: center;
 }
 
+img {
+    width: 100%;
+}
+
 input {
     font-family: "Agency FB",'Courier New', Courier, monospace;
     font-weight: bold;

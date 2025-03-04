@@ -86,7 +86,7 @@ if (data.length == 0) {
 
 teamNumber.value = currentData.teamNumber;
 roundNumber.value = currentData.roundNumber;
-scouterName.value = currentData.scouterName;
+scouterName.value = currentData.scouterName || localStorage.scouterName;
 notes.textContent = currentData.notes;
 
 if (currentData.alliance == "blue") {
@@ -214,11 +214,18 @@ document.addEventListener("DOMContentLoaded", () => {
       confirmRestart = false;
 
       gameFrameUpdate();
-  
+
       startButton.hidden = true;
       nextButton.hidden = true;
     });
     endGame();
+  });
+
+  newGame.addEventListener("click", e => {
+    currentData = new ScoutingData(currentData.roundNumber + 1, null, currentData.scouterName, null);
+    data.push(currentData);
+    saveData();
+    loadPage(1);
   });
 
   stateButton(["No Attempt", "Shallow Climb", "Deep Climb"], cageToggle, "Cage Climb", "cage");
@@ -370,9 +377,12 @@ getEvent(eventKey).then(value => {
 function exportData() {
   summarize();
   qrcode.innerHTML = "";
-  var url = "https://sparta-scouting-page.vercel.app/import/?" + encodeURI(JSON.stringify(summary));
-  new QRCode("qrcode", url);
-  console.log(url);
+  var url = "https://sparta-scouting-page.vercel.app/import/?" + JSON.stringify(summary);
+  try {
+    new QRCode("qrcode", url);
+  } catch {
+    alert("QRCode could not be generated. Data saved to localStorage.");
+  }
 }
 
 function importData() {

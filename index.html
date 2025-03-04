@@ -16,7 +16,7 @@
   <div id="page-1" hidden>
     <h1 style="font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;">Pre-Game<button class="nav-button right" onclick="loadPage(2)">→</button></h1>
         <form id="setupForm">
-          <label>Scouter Name<br><input onchange="currentData.scouterName = scouterName.value; saveData();" class="input-inline" type="text" id="scouterName" placeholder="name" required></label><br><br>
+          <label>Scouter Name<br><input onchange="currentData.scouterName = scouterName.value; localStorage.scouterName = scouterName.value; saveData();" class="input-inline" type="text" id="scouterName" placeholder="name" required></label><br><br>
           <label>Round Number<br><input onchange="currentData.roundNumber = roundNumber.value; saveData(); updateRound();"  class="input-inline number" type="number" id="roundNumber" placeholder="0000" required></label><br><button class="input-inline" type="button"
             onclick="currentData.roundNumber++; roundNumber.value = currentData.roundNumber; saveData(); updateRound();">+1</button><br><br><br>
           <div id="teamSelector" hidden>
@@ -71,11 +71,12 @@
         None</button>
       <h3>Notes</h3>
       <textarea onchange="currentData.notes = notes.value; saveData();" id="notes" style="width: 100%; height: 10em;"></textarea>
-    </div><div id="page-4" hidden>
+      </div><div id="page-4" hidden>
       <h1 style="font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;"><button class="nav-button left"
           onclick="loadPage(3)">←</button>QR Code</h1>
       <h3>Please screenshot and save.</h3>
-      <div id="qrcode"></div>
+      <div id="qrcode"></div><br>
+      <button class="input-inline" id="newGame" type="submit">New Game</button>
     </div>
   </body>
 </html>
