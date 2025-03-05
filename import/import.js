@@ -39,7 +39,6 @@ const stateButtons = [
         "name": "Coral Direction"
     }
 ];
-const eventKey = "2024wasam"; // TODO: Change this to 2025wabon before competition. Add some way to automatically get event info.
 
 if (!localStorage) {
     alert("No localStorage available, data may be lost.");
@@ -69,7 +68,7 @@ function saveData() {
 }
 
 function validateData() {
-    return currentData.teamNumber && currentData.alliance && currentData.roundNumber && currentData.scouterName;
+    return summary.teamNumber && summary.alliance && summary.roundNumber && summary.scouterName;
 }
 
 var summary = {};
@@ -77,41 +76,39 @@ var summary = {};
 async function getRounds(event) {
     return await (await fetch(`https://www.thebluealliance.com/api/v3/event/${event}/matches?X-TBA-Auth-Key=${apikey}`)).json();
 }
-async function getTeams(district) {
-    return await (await fetch(`https://www.thebluealliance.com/api/v3/district/${district}/teams?X-TBA-Auth-Key=${apikey}`)).json();
+
+async function getYear() {
+    return (await (await fetch(`https://www.thebluealliance.com/api/v3/status?X-TBA-Auth-Key=${apikey}`)).json()).current_season;
+}
+
+async function getTeams() {
+    var teams = [];
+    var newTeams = [];
+    var i = 0;
+    do {
+        newTeams = await (await fetch(`https://www.thebluealliance.com/api/v3/teams/${i}?X-TBA-Auth-Key=${apikey}`)).json();
+        teams = teams.concat(newTeams);
+        i++;
+    } while (newTeams.length > 0)
+    return teams;
 }
 async function getEvent(event) {
     return await (await fetch(`https://www.thebluealliance.com/api/v3/event/${event}?X-TBA-Auth-Key=${apikey}`)).json();
 }
 
-var rounds;
-try {
-    rounds = JSON.parse(localStorage.rounds);
-} catch {
-    rounds = {};
-}
-getRounds(eventKey).then(value => {
-    localStorage.rounds = JSON.stringify(value);
-    rounds = value;
-});
+var teams = JSON.parse(localStorage.teams);
 
-var district = localStorage.district;
-var teams;
-try {
-    teams = JSON.parse(localStorage.teams);
-} catch {
-    teams = {};
-}
-getEvent(eventKey).then(value => {
-    localStorage.district = value.district.key;
-    district = value.district.key;
-    getTeams(district).then(value => {
-        teams = {};
-        for (var team of value) {
-            teams[team.team_number] = team;
-        }
-        localStorage.teams = JSON.stringify(teams);
-    });
+getYear().then(value => {
+    year = value;
+    if (+localStorage.teamsYear != year)
+        getTeams().then(value => {
+            teams = {};
+            for (var team of value) {
+                teams[team.team_number] = team;
+            }
+            localStorage.teams = JSON.stringify(teams);
+            localStorage.teamsYear = year;
+        });
 });
 
 function exportData() {
@@ -125,9 +122,16 @@ function exportData() {
     }
 }
 
+importData();
+
 function importData() {
-    var shortData = JSON.parse(decodeURI(location.search).slice(1));
-    summary = { scouterName: shortData.m, teamNumber: shortData.t, alliance: shortData.a }
+    try {
+        shortData = JSON.parse(decodeURI(location.search).slice(1));
+    } catch {
+        alert("Failed to import: Malformed JSON");
+        return;
+    }
+    summary = {};
 
     for (var key in summaryKeys) {
         summary[key] = shortData[summaryKeys[key]] ?? 0;
@@ -135,6 +139,28 @@ function importData() {
 
     for (var input of stateButtons) {
         summary[input.name] = input.states[summary[input.name]];
+    }
+
+    summaryBox.innerHTML = `<br><li>Scouter: ${shortData.m}</li><li>Team: ${shortData.t} (${shortData.a})</li><li>Round: ${shortData.r}</li>`;
+
+    for (var event in summary) {
+        var li = document.createElement("li");
+        li.id = `summary${event}`;
+        var span = document.createElement("span");
+        span.innerText = `${event}: ${summary[event] ?? summary[event]}`;
+        li.appendChild(span);
+        summaryBox.insertBefore(li, summaryBox.firstChild);
+    }
+    summary.scouterName = shortData.m;
+    summary.teamNumber = shortData.t;
+    summary.alliance = shortData.a;
+    summary.roundNumber = shortData.r;
+
+    notes.innerText = shortData.n;
+
+    var s = summary;
+    for (var event in s) {
+        summary[summaryKeys[event]] = s[event];
     }
     return summary;
 }
