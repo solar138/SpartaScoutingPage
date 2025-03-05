@@ -71,7 +71,7 @@ function saveData() {
 }
 
 function mergeData() {
-    if (!data[summary.teamNumber]) data[summary.teamNumber] = [];
+    if (!data[summary.teamNumber]) data[summary.teamNumber] = {};
     data[summary.teamNumber][summary.roundNumber] = summary;
 
     saveData();
@@ -146,6 +146,8 @@ function importData() {
     for (var key in summaryKeys) {
         if (key == "") {
             summary[key] = "&nbsp;";
+        } else if (key == "Auto Disabled" || key == "Robot Disabled") {
+            summary[key] = (shortData[summaryKeys[key]] ?? 0);
         } else {
             summary[key] = (shortData[summaryKeys[key]] ?? 0) + " / " + (shortData["a" + summaryKeys[key]] ?? 0);
         }
@@ -172,13 +174,13 @@ function importData() {
                 </tr>`;
     createTable(summary, summaryTable);
 
-    var info = { "Scouter": shortData.m, "Team": shortData.t, "": teams[shortData.t].nickname, "Alliance": shortData.a, "Round": shortData.r };
+    var info = { "Scouter": shortData.m, "Team": shortData.t, "": teams[shortData.t].nickname, "Alliance": shortData.a, "Round": shortData.o };
     summaryTable.innerHTML += "<tr><td>&nbsp;</td></tr>"
     createTable(info, summaryTable);
     summary.scouterName = shortData.m;
     summary.teamNumber = shortData.t;
     summary.alliance = shortData.a;
-    summary.roundNumber = shortData.r;
+    summary.roundNumber = shortData.o;
 
     notes.innerText = shortData.n;
 }
