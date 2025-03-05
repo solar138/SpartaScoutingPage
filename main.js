@@ -1,6 +1,7 @@
 const apikey = "tYekUbMgHsDcEblf230XxA7WmLMbxFxqALAleZIGZatgAeKCKh7RuaJ1EKGsURCf";
 const summaryKeys = {};
 const stateButtons = [];
+const eventButtons = [];
 const statesUSA = {
   "Alabama": "AL",
   "Alaska": "AK",
@@ -141,7 +142,7 @@ function stateButton(states, button, name, key, onclick) {
   button.innerHTML = name + ":<br>" + states[currentData[name]] ?? states[0];
   if (onclick) onclick();
 
-  stateButtons.push({states, name});
+  stateButtons.push({states, name, button});
 }
 
 function eventButton(button, name, key) {
@@ -162,6 +163,7 @@ function eventButton(button, name, key) {
     saveData();
   });
 
+  eventButtons.push({key, name, button});
   summaryKeys[name] = key;
 }
 
@@ -255,6 +257,10 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
     }
+
+    for (var button of eventButtons.concat(stateButtons)) {
+      button.button.hidden = false;
+    }
     gameStartTime = Date.now();
 
     gameFrameUpdate();
@@ -282,6 +288,10 @@ document.addEventListener("DOMContentLoaded", () => {
     loadPage(+localStorage.currentPage)
   } else {
     loadPage(1);
+  }
+
+  for (var button of eventButtons.concat(stateButtons)) {
+    button.button.hidden = true;
   }
 });
 
@@ -344,6 +354,10 @@ function endGame() {
   startButton.innerText = "Restart";
   confirmRestart = true;
   nextButton.hidden = false;
+
+  for (var button of eventButtons.concat(stateButtons)) {
+    button.button.hidden = true;
+  }
 
   summarize();
 

@@ -61,10 +61,17 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-function saveData() {
-    localStorage.ScoutingData = JSON.stringify(data);
+var data = JSON.parse(localStorage.CollectedData || "{}");
 
-    document.getElementById("submit").disabled = !validateData();
+function saveData() {
+    localStorage.CollectedData = JSON.stringify(data);
+}
+
+function mergeData() {
+    if (!data[summary.teamNumber]) data[summary.teamNumber] = [];
+    data[summary.teamNumber][summary.roundNumber] = summary;
+
+    saveData();
 }
 
 function validateData() {
@@ -167,12 +174,6 @@ function importData() {
     summary.roundNumber = shortData.r;
 
     notes.innerText = shortData.n;
-
-    var s = summary;
-    for (var event in s) {
-        summary[summaryKeys[event]] = s[event];
-    }
-    return summary;
 }
 
 function createTable(data, table) {
