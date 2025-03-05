@@ -304,8 +304,12 @@ var summary = {};
 
 function summarize() {
   summary = {};
+  autoOnly = {};
   for (var event of currentData.events) {
     summary[event.name] = (summary[event.name] ?? 0) + 1;
+
+    if (event.time < 15000)
+      autoOnly[event.name] = (autoOnly[event.name] ?? 0) + 1;
   }
 
   for (var input of stateButtons) {
@@ -328,6 +332,9 @@ function summarize() {
   for (var event in s) {
     summary[summaryKeys[event]] = s[event];
   }
+  for (var event in autoOnly) {
+    summary["a" + summaryKeys[event]] = s[event];
+  }
 }
 
 function endGame() {
@@ -344,26 +351,57 @@ function endGame() {
 }
 
 async function getRounds(event) {
-  return await (await fetch(`https://www.thebluealliance.com/api/v3/event/${event}/matches?X-TBA-Auth-Key=${apikey}`)).json();
+  apisCalled++;
+  updateProgress();
+  var result = await (await fetch(`https://www.thebluealliance.com/api/v3/event/${event}/matches?X-TBA-Auth-Key=${apikey}`)).json();
+  apisReturned++; 
+  updateProgress();
+  return result;
 }
 
 async function getYear() {
-  return (await (await fetch(`https://www.thebluealliance.com/api/v3/status?X-TBA-Auth-Key=${apikey}`)).json()).current_season;
+  apisCalled++;
+  updateProgress();
+  var result = (await (await fetch(`https://www.thebluealliance.com/api/v3/status?X-TBA-Auth-Key=${apikey}`)).json()).current_season;
+  apisReturned++; 
+  updateProgress();
+  return result;
 }
+
+function updateProgress() {
+  progress.textContent = apisReturned + " / " + apisCalled;
+
+  downloading.hidden = apisReturned == apisCalled;
+}
+
+var estTeamPages = 22;
+var apisCalled = 0;
+var apisReturned = 0;
 
 async function getTeams() {
   var teams = [];
   var newTeams = [];
+  apisCalled += estTeamPages;
+  updateProgress();
   var i = 0;
   do {
     newTeams = await (await fetch(`https://www.thebluealliance.com/api/v3/teams/${i}?X-TBA-Auth-Key=${apikey}`)).json();
     teams = teams.concat(newTeams);
     i++;
+    apisReturned++;
+    if (i > estTeamPages)
+      apisCalled++;
+    updateProgress();
   } while (newTeams.length > 0)
   return teams;
 }
 async function getEvent(event) {
-  return await (await fetch(`https://www.thebluealliance.com/api/v3/event/${event}?X-TBA-Auth-Key=${apikey}`)).json();
+  apisCalled++;
+  updateProgress();
+  var result = await (await fetch(`https://www.thebluealliance.com/api/v3/event/${event}?X-TBA-Auth-Key=${apikey}`)).json();
+  apisReturned++;
+  updateProgress();
+  return result;
 }
 
 var rounds = localStorage.rounds;

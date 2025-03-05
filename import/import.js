@@ -134,15 +134,15 @@ function importData() {
     summary = {};
 
     for (var key in summaryKeys) {
-        summary[key] = shortData[summaryKeys[key]] ?? 0;
+        summary[key] = (shortData[summaryKeys[key]] ?? 0) + " / " + (shortData["a" + summaryKeys[key]] ?? 0);
     }
 
     for (var input of stateButtons) {
-        summary[input.name] = input.states[summary[input.name]];
+        summary[input.name] = input.states[summary[input.name][0]];
     }
 
-    summaryBox.innerHTML = `<br><li>Scouter: ${shortData.m}</li><li>Team: ${shortData.t} (${shortData.a})</li><li>Round: ${shortData.o}</li>`;
-
+    //summaryBox.innerHTML = `<li>Scouter: ${shortData.m}</li><li>Team: ${shortData.t} (${shortData.a})</li><li>Round: ${shortData.o}</li>`;
+/*
     for (var event in summary) {
         var li = document.createElement("li");
         li.id = `summary${event}`;
@@ -150,7 +150,17 @@ function importData() {
         span.innerText = `${event}: ${summary[event] ?? summary[event]}`;
         li.appendChild(span);
         summaryBox.insertBefore(li, summaryBox.firstChild);
-    }
+    }*/
+    summaryTable.innerHTML = `
+                <tr>
+                    <td></td>
+                    <td>Total / Auto Only</td>
+                </tr>`;
+    createTable(summary, summaryTable);
+
+    var info = { "Scouter": shortData.m, "Team": shortData.t, "": teams[shortData.t].nickname, "Alliance": shortData.a, "Round": shortData.r };
+    summaryTable.innerHTML += "<tr><td>&nbsp;</td></tr>"
+    createTable(info, summaryTable);
     summary.scouterName = shortData.m;
     summary.teamNumber = shortData.t;
     summary.alliance = shortData.a;
@@ -163,6 +173,20 @@ function importData() {
         summary[summaryKeys[event]] = s[event];
     }
     return summary;
+}
+
+function createTable(data, table) {
+
+    for (var entry in data) {
+        var tr = document.createElement("tr");
+        var tdKey = document.createElement("td");
+        tdKey.textContent = entry.length > 0 ? entry + " : " : entry;
+        var tdValue = document.createElement("td");
+        tdValue.textContent = data[entry];
+        tr.appendChild(tdKey);
+        tr.appendChild(tdValue);
+        table.appendChild(tr);
+    }
 }
 
 var currentPage = 0;
