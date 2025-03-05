@@ -333,7 +333,7 @@ function summarize() {
     summary[summaryKeys[event]] = s[event];
   }
   for (var event in autoOnly) {
-    summary["a" + summaryKeys[event]] = s[event];
+    summary["a" + summaryKeys[event]] = autoOnly[event];
   }
 }
 
