@@ -324,7 +324,7 @@ function summarize() {
   }
 
   var s = summary;
-  summary = { m: currentData.scouterName, t: currentData.teamNumber, a: currentData.alliance, };
+  summary = { m: currentData.scouterName, t: currentData.teamNumber, a: currentData.alliance, o: currentData.roundNumber };
   for (var event in s) {
     summary[summaryKeys[event]] = s[event];
   }
@@ -417,16 +417,26 @@ function getAPIData() {
   });
 }
 
+var alerted = false;
 function exportData() {
   summarize();
   qrcode.innerHTML = "";
+  summary.n = notes.textContent;
   var url = "https://sparta-scouting-page.vercel.app/import/?" + JSON.stringify(summary);
+  while (url.length >= 192 && url.length <= 217) {
+    url += " ";
+    // Bugfix with qrcodejs library, see https://github.com/davidshimjs/qrcodejs/issues/309
+  }
   try {
     new QRCode("qrcode", url);
-  } catch {
-    alert("QRCode could not be generated. Data saved to localStorage.");
+  } catch (error) {
+    if (!alerted) {
+      alert("QRCode could not be generated. Data saved to localStorage.");
+      alerted = true;
+    }
+    console.log(error);
   }
-  importerURL.href = url;
+  importerURL.href = "import/index.html?" + JSON.stringify(summary);
 }
 
 function importData() {

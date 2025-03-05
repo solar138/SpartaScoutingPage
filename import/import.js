@@ -141,7 +141,7 @@ function importData() {
         summary[input.name] = input.states[summary[input.name]];
     }
 
-    summaryBox.innerHTML = `<br><li>Scouter: ${shortData.m}</li><li>Team: ${shortData.t} (${shortData.a})</li><li>Round: ${shortData.r}</li>`;
+    summaryBox.innerHTML = `<br><li>Scouter: ${shortData.m}</li><li>Team: ${shortData.t} (${shortData.a})</li><li>Round: ${shortData.o}</li>`;
 
     for (var event in summary) {
         var li = document.createElement("li");
