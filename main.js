@@ -1,5 +1,5 @@
 const apikey = "tYekUbMgHsDcEblf230XxA7WmLMbxFxqALAleZIGZatgAeKCKh7RuaJ1EKGsURCf";
-const summaryKeys = {};
+const summaryKeys = {"Auto Disabled": "da", "Robot Disabled": "dr"};
 const stateButtons = [];
 const eventButtons = [];
 const statesUSA = {
@@ -170,6 +170,9 @@ function eventButton(button, name, key) {
 var index = 0;
 
 function createLogEntry(time, name, undo) {
+  try {
+    name = name();
+  } catch {}
   var li = document.createElement("li");
   li.id = `logEntry${index}`;
   var button = document.createElement("button");
@@ -213,17 +216,42 @@ document.addEventListener("DOMContentLoaded", () => {
 
   endEarlyButton.addEventListener("click", e => {
     const oldStartTime = gameStartTime;
-    createLogEntry(Date.now() - gameStartTime, "Robot Disabled", () => {
-      gameStartTime = oldStartTime;
-      startButton.innerText = "Start";
-      confirmRestart = false;
+    const time = Date.now();
+    createLogEntry(Date.now() - gameStartTime, () => (time - gameStartTime) < autoLength * 1e3 ? "Auto Disabled" : "Robot Disabled", () => {
 
-      gameFrameUpdate();
+      if (time - gameStartTime < autoLength * 1e3) {
+        for (var button of eventButtons.concat(stateButtons)) {
+          button.button.hidden = false;
+        }
+        endEarlyButton.hidden = false;
+      } else {
+        gameStartTime = oldStartTime;
+        startButton.innerText = "Start";
+        confirmRestart = false;
 
-      startButton.hidden = true;
-      nextButton.hidden = true;
+        gameFrameUpdate();
+
+        startButton.hidden = true;
+        nextButton.hidden = true;
+      }
     });
-    endGame();
+    for (var button of eventButtons.concat(stateButtons)) {
+      button.button.hidden = true;
+    }
+    endEarlyButton.hidden = true;
+    var event = {
+      name: (Date.now() - gameStartTime) < autoLength * 1e3 ? "Auto Disabled" : "Robot Disabled",
+      time: Date.now() - gameStartTime,
+    };
+
+    if (!currentData.events) {
+      currentData.events = [];
+    }
+    currentData.events.push(event);
+    saveData();
+
+    if (Date.now() - gameStartTime > autoLength * 1e3)
+      endGame();
   });
 
   newGame.addEventListener("click", e => {
@@ -253,10 +281,12 @@ document.addEventListener("DOMContentLoaded", () => {
   startButton.addEventListener("click", e => {
 
     if (confirmRestart) {
-      if (!confirm("Are you sure you want to restart the game?")) {
+      if (!confirm("Are you sure you want to restart the game? This will clear your collected data!")) {
         return;
       }
     }
+    currentData.events = [];
+    log.innerHTML = "";
 
     for (var button of eventButtons.concat(stateButtons)) {
       button.button.hidden = false;
@@ -313,10 +343,14 @@ var confirmRestart = false;
 var summary = {};
 
 function summarize() {
-  summary = {};
+  summary = { "Robot Disabled": "Never" };
   autoOnly = {};
   for (var event of currentData.events) {
-    summary[event.name] = (summary[event.name] ?? 0) + 1;
+    if (event.name == "Robot Disabled" || event.name == "Auto Disabled") {
+      summary[event.name] = event.time / 1000 + " s";
+    } else {
+      summary[event.name] = (summary[event.name] ?? 0) + 1;
+    }
 
     if (event.time < 15000)
       autoOnly[event.name] = (autoOnly[event.name] ?? 0) + 1;
@@ -512,9 +546,15 @@ function gameFrameUpdate() {
     timer.textContent = time;
     var oldStatus = gameStatus.textContent;
     gameStatus.textContent = gameTime < autoLength * 1000 ? "Auto" : "TeleOp";
+    endEarlyButton.textContent = gameTime < autoLength * 1000 ? "Auto Disabled" : "Robot Disabled";
 
     if (oldStatus == "Auto" && gameStatus.textContent == "TeleOp") {
       currentData.autoEvents = JSON.parse(JSON.stringify(currentData.events));
+      endEarlyButton.hidden = false;
+
+      for (var button of eventButtons.concat(stateButtons)) {
+        button.button.hidden = false;
+      }
     }
 
     if (gameTime > gameLength * 1000) {

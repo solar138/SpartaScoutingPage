@@ -9,9 +9,12 @@ const summaryKeys = {
     "L3 Coral Scored": "3",
     "L4 Coral Scored": "4",
     "Algae Removed": "g",
+    "": "",
+    "Auto Disabled": "da",
+    "Robot Disabled": "dr",
     "Cage Climb": "cage",
     "Coral Intake": "ciD",
-    "Coral Direction": "ciR"
+    "Coral Direction": "ciR",
 };
 const stateButtons = [
     {
@@ -141,7 +144,11 @@ function importData() {
     summary = {};
 
     for (var key in summaryKeys) {
-        summary[key] = (shortData[summaryKeys[key]] ?? 0) + " / " + (shortData["a" + summaryKeys[key]] ?? 0);
+        if (key == "") {
+            summary[key] = "&nbsp;";
+        } else {
+            summary[key] = (shortData[summaryKeys[key]] ?? 0) + " / " + (shortData["a" + summaryKeys[key]] ?? 0);
+        }
     }
 
     for (var input of stateButtons) {
@@ -181,9 +188,9 @@ function createTable(data, table) {
     for (var entry in data) {
         var tr = document.createElement("tr");
         var tdKey = document.createElement("td");
-        tdKey.textContent = entry.length > 0 ? entry + " : " : entry;
+        tdKey.innerHTML = entry.length > 0 ? entry + " : " : entry;
         var tdValue = document.createElement("td");
-        tdValue.textContent = data[entry];
+        tdValue.innerHTML = data[entry];
         tr.appendChild(tdKey);
         tr.appendChild(tdValue);
         table.appendChild(tr);
