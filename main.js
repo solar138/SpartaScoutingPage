@@ -226,6 +226,7 @@ document.addEventListener("DOMContentLoaded", () => {
         endEarlyButton.hidden = false;
       } else {
         gameStartTime = oldStartTime;
+        localStorage.gameStartTime = gameStartTime;
         startButton.innerText = "Start";
         confirmRestart = false;
 
@@ -254,17 +255,8 @@ document.addEventListener("DOMContentLoaded", () => {
       endGame();
   });
 
-  newGame.addEventListener("click", e => {
-    currentData = new ScoutingData(currentData.roundNumber + 1, null, currentData.scouterName, null);
-    teamNumber.value = "";
-    roundNumber.value = currentData.roundNumber;
-    startButton.innerText = "Start";
-    nextButton.hidden = true;
-    confirmRestart = false;
-    data.push(currentData);
-    log.innerHTML = "";
-    saveData();
-    loadPage(1);
+  newGameButton.addEventListener("click", e => {
+    newGame();
   });
 
   stateButton(["No Attempt", "Shallow Climb", "Deep Climb"], cageToggle, "Cage Climb", "cage");
@@ -285,20 +277,8 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
     }
-    currentData.events = [];
-    log.innerHTML = "";
 
-    for (var button of eventButtons.concat(stateButtons)) {
-      button.button.hidden = false;
-    }
-    gameStartTime = Date.now();
-
-    gameFrameUpdate();
-
-    startButton.hidden = true;
-    nextButton.hidden = true;
-
-    saveData();
+    startGame();
   });
 
   const form = document.getElementById("setupForm");
@@ -323,6 +303,14 @@ document.addEventListener("DOMContentLoaded", () => {
   for (var button of eventButtons.concat(stateButtons)) {
     button.button.hidden = true;
   }
+
+  if (gameStartTime > 0) {
+    var t = gameStartTime;
+    startGame();
+    gameStartTime = +t;
+    localStorage.gameStartTime = t;
+  }
+  
 });
 
 function saveData() {
@@ -381,8 +369,40 @@ function summarize() {
   }
 }
 
+function newGame() {
+  currentData = new ScoutingData(currentData.roundNumber + 1, null, currentData.scouterName, null);
+  teamNumber.value = "";
+  roundNumber.value = currentData.roundNumber;
+  startButton.innerText = "Start";
+  nextButton.hidden = true;
+  confirmRestart = false;
+  data.push(currentData);
+  log.innerHTML = "";
+  saveData();
+  loadPage(1);
+}
+
+function startGame() {
+  currentData.events = [];
+  log.innerHTML = "";
+
+  for (var button of eventButtons.concat(stateButtons)) {
+    button.button.hidden = false;
+  }
+  gameStartTime = Date.now();
+  localStorage.gameStartTime = gameStartTime;
+
+  gameFrameUpdate();
+
+  startButton.hidden = true;
+  nextButton.hidden = true;
+
+  saveData();
+}
+
 function endGame() {
   gameStartTime = null;
+  localStorage.gameStartTime = gameStartTime;
   gameStatus.textContent = "Game Over!";
   startButton.hidden = false;
   startButton.innerText = "Restart";
@@ -594,9 +614,8 @@ function gameFrameUpdate() {
 
 const gameLength = 2*60 + 30;
 const autoLength = 15;
-var currentPage = 0;
-var gameStartTime = null;
-
+var currentPage = 0;  
+var gameStartTime = +localStorage.gameStartTime;
 function loadPage(page) {
   document.getElementById("page-" + currentPage).hidden = true;
   document.getElementById("page-" + page).hidden = false;
