@@ -55,7 +55,6 @@ const statesUSA = {
   "Wyoming": "WY"
 };
 
-try {
 var year = 2025;
 var eventKey = "2024wasam";
 
@@ -219,11 +218,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const time = Date.now();
     createLogEntry(Date.now() - gameStartTime, () => (time - gameStartTime) < autoLength * 1e3 ? "Auto Disabled" : "Robot Disabled", () => {
 
+      for (var button of eventButtons.concat(stateButtons)) {
+        button.button.hidden = false;
+      }
+      endEarlyButton.hidden = false;
       if (time - gameStartTime < autoLength * 1e3) {
-        for (var button of eventButtons.concat(stateButtons)) {
-          button.button.hidden = false;
-        }
-        endEarlyButton.hidden = false;
       } else {
         gameStartTime = oldStartTime;
         localStorage.gameStartTime = gameStartTime;
@@ -259,8 +258,9 @@ document.addEventListener("DOMContentLoaded", () => {
     newGame();
   });
 
-  stateButton(["No Attempt", "Shallow Climb", "Deep Climb"], cageToggle, "Cage Climb", "cage");
-  stateButton(["None", "Ground", "Feed", "Both"], coralIntakeDesign, "Coral Intake", "ciD", () => {
+  stateButton(["Not Parked", "Parked", "Failed Climb", "Shallow Climb", "Deep Climb"], cageToggle, "Endgame", "cage");
+  stateButton(["Not Present", "Left", "Middle", "Right"], startingPosToggle, "Start", "start");
+  stateButton(["None", "Ground", "Human Feed", "Both"], coralIntakeDesign, "Coral Intake", "ciD", () => {
     coralIntakeDirection.hidden = currentData["Coral Intake"] == "None";
   });
   stateButton(["Horizontal", "Vertical"], coralIntakeDirection, "Coral Direction", "ciR");
@@ -278,7 +278,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    startGame();
+    startGame(true);
   });
 
   const form = document.getElementById("setupForm");
@@ -306,7 +306,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (gameStartTime > 0) {
     var t = gameStartTime;
-    startGame();
+    startGame(false);
     gameStartTime = +t;
     localStorage.gameStartTime = t;
   }
@@ -382,15 +382,17 @@ function newGame() {
   loadPage(1);
 }
 
-function startGame() {
-  currentData.events = [];
-  log.innerHTML = "";
+function startGame(reset) {
+  if (reset) {
+    currentData.events = [];
+    log.innerHTML = "";
+    gameStartTime = Date.now();
+    localStorage.gameStartTime = gameStartTime;
+  }
 
   for (var button of eventButtons.concat(stateButtons)) {
     button.button.hidden = false;
   }
-  gameStartTime = Date.now();
-  localStorage.gameStartTime = gameStartTime;
 
   gameFrameUpdate();
 
@@ -695,7 +697,4 @@ function JSONparse(str, error) {
   } catch {
     return error;
   }
-}
-} catch (e) {
-  error.textContent = e.stack.replaceAll(location.href, "[HREF]");
 }
