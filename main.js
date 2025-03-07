@@ -55,10 +55,9 @@ const statesUSA = {
   "Wyoming": "WY"
 };
 
-
+try {
 var year = 2025;
 var eventKey = "2024wasam";
-
 
 if (!localStorage) {
   alert("No localStorage available, data may be lost.");
@@ -677,4 +676,7 @@ function JSONparse(str, error) {
   } catch {
     return error;
   }
+}
+} catch (e) {
+  error.textContent = e.stack.replaceAll(location.href, "[HREF]");
 }
