@@ -404,6 +404,13 @@ async function getRounds(event) {
   updateProgress();
   try {
     result = await (await fetch(`https://www.thebluealliance.com/api/v3/event/${event}/matches?X-TBA-Auth-Key=${apikey}`)).json();
+
+    for (var i = 0; i < result.length; i++) {
+      if (result[i].comp_level == "qm") {
+        roundOffset = i - 1;
+        break;
+      }
+    }
   } catch {
     result = [];
     apisCalled--;
@@ -438,6 +445,7 @@ function updateProgress() {
 var estTeamPages = 22;
 var apisCalled = 0;
 var apisReturned = 0;
+var roundOffset = 0;
 
 async function getTeams() {
   var teams = [];
@@ -616,9 +624,9 @@ function updateAlliance() {
 }
 
 function updateRound() {
-  var round = rounds == undefined ? null : rounds[currentData.roundNumber - 1];
+  var round = (rounds == undefined) ? null : rounds[(+currentData.roundNumber) + roundOffset];
 
-  if (round && round.alliances) {
+  if (currentData.roundNumber > 0 && round && round.alliances) {
     teamSelector.hidden = false;
 
     team1r.innerText = round.alliances.red.team_keys[0].slice(3);
