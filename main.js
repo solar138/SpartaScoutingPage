@@ -55,6 +55,7 @@ const statesUSA = {
   "Wyoming": "WY"
 };
 
+
 var year = 2025;
 var eventKey = "2024wasam";
 
@@ -74,7 +75,7 @@ class ScoutingData {
 }
 
 try {
-  data = JSON.parse(localStorage.ScoutingData ?? "[]");
+  data = JSONparse(localStorage.ScoutingData ?? "[]");
 } catch {
   alert("Data error: JSON parsing error.");
   data = [];
@@ -89,8 +90,8 @@ if (data.length == 0) {
 
 teamNumber.value = currentData.teamNumber;
 roundNumber.value = currentData.roundNumber;
-scouterName.value = currentData.scouterName || localStorage.scouterName;
-eventKeyInput.value = localStorage.eventKey;
+scouterName.value = currentData.scouterName || localStorage.scouterName || "";
+eventKeyInput.value = localStorage.eventKey || "2025wasam";
 notes.textContent = currentData.notes;
 
 if (currentData.alliance == "blue") {
@@ -401,7 +402,13 @@ function endGame() {
 async function getRounds(event) {
   apisCalled++;
   updateProgress();
-  var result = await (await fetch(`https://www.thebluealliance.com/api/v3/event/${event}/matches?X-TBA-Auth-Key=${apikey}`)).json();
+  try {
+    result = await (await fetch(`https://www.thebluealliance.com/api/v3/event/${event}/matches?X-TBA-Auth-Key=${apikey}`)).json();
+  } catch {
+    result = [];
+    apisCalled--;
+    apisReturned--;
+  }
   apisReturned++; 
   updateProgress();
   return result;
@@ -410,7 +417,13 @@ async function getRounds(event) {
 async function getYear() {
   apisCalled++;
   updateProgress();
-  var result = (await (await fetch(`https://www.thebluealliance.com/api/v3/status?X-TBA-Auth-Key=${apikey}`)).json()).current_season;
+  try {
+    result = (await (await fetch(`https://www.thebluealliance.com/api/v3/status?X-TBA-Auth-Key=${apikey}`)).json()).current_season;
+  } catch {
+    result = {};
+    apisCalled--;
+    apisReturned--;
+  }
   apisReturned++; 
   updateProgress();
   return result;
@@ -419,7 +432,7 @@ async function getYear() {
 function updateProgress() {
   progress.textContent = apisReturned + " / " + apisCalled;
 
-  downloading.hidden = apisReturned == apisCalled;
+  downloading.style.color = apisReturned == apisCalled ? "transparent" : "unset";
 }
 
 var estTeamPages = 22;
@@ -446,7 +459,13 @@ async function getTeams() {
 async function getEvent(event) {
   apisCalled++;
   updateProgress();
-  var result = await (await fetch(`https://www.thebluealliance.com/api/v3/event/${event}?X-TBA-Auth-Key=${apikey}`)).json();
+  try {
+    result = await (await fetch(`https://www.thebluealliance.com/api/v3/event/${event}?X-TBA-Auth-Key=${apikey}`)).json();
+  } catch {
+    result = [];
+    apisCalled--;
+    apisReturned--;
+  }
   apisReturned++;
   updateProgress();
   return result;
@@ -454,7 +473,7 @@ async function getEvent(event) {
 
 var rounds = localStorage.rounds;
 var district = localStorage.district;
-var teams = JSON.parse(localStorage.teams);
+var teams = JSONparse(localStorage.teams, []);
 
 getYear().then(value => {
   year = value;
@@ -474,7 +493,7 @@ getYear().then(value => {
 
 function getAPIData() {
   try {
-    rounds = JSON.parse(localStorage.rounds);
+    rounds = JSONparse(localStorage.rounds);
   } catch {
     rounds = {};
   }
@@ -485,7 +504,7 @@ function getAPIData() {
   });
 
   try {
-    teams = JSON.parse(localStorage.teams);
+    teams = JSONparse(localStorage.teams);
   } catch {
     teams = {};
   }
@@ -508,7 +527,7 @@ function exportData() {
   summarize();
   qrcode.innerHTML = "";
   summary.n = notes.textContent;
-  var url = "https://sparta-scouting-page.vercel.app/import/?" + JSON.stringify(summary);
+  var url = "https://sparta-scouting-page.vercel.app/import/?" + encodeURIComponent(JSON.stringify(summary));
   while (url.length >= 192 && url.length <= 217) {
     url += " ";
     // Bugfix with qrcodejs library, see https://github.com/davidshimjs/qrcodejs/issues/309
@@ -526,7 +545,7 @@ function exportData() {
 }
 
 function importData() {
-  var shortData = JSON.parse(decodeURI(location.search).slice(1));
+  var shortData = JSONparse(decodeURI(location.search).slice(1));
   summary = {scouterName: shortData.m, teamNumber: shortData.t, alliance: shortData.a}
 
   for (var key in summaryKeys) {
@@ -549,7 +568,7 @@ function gameFrameUpdate() {
     endEarlyButton.textContent = gameTime < autoLength * 1000 ? "Auto Disabled" : "Robot Disabled";
 
     if (oldStatus == "Auto" && gameStatus.textContent == "TeleOp") {
-      currentData.autoEvents = JSON.parse(JSON.stringify(currentData.events));
+      currentData.autoEvents = JSONparse(JSON.stringify(currentData.events));
       endEarlyButton.hidden = false;
 
       for (var button of eventButtons.concat(stateButtons)) {
@@ -597,7 +616,7 @@ function updateAlliance() {
 }
 
 function updateRound() {
-  var round = rounds[currentData.roundNumber - 1];
+  var round = rounds == undefined ? null : rounds[currentData.roundNumber - 1];
 
   if (round && round.alliances) {
     teamSelector.hidden = false;
@@ -642,4 +661,12 @@ function selectTeamB(num) {
   updateAlliance();
 
   saveData();
+}
+
+function JSONparse(str, error) {
+  try {
+    return JSON.parse(str);
+  } catch {
+    return error;
+  }
 }

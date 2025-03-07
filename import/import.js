@@ -64,7 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-var data = JSON.parse(localStorage.CollectedData || "{}");
+var data = JSONparse(localStorage.CollectedData || "{}");
 
 function saveData() {
     localStorage.CollectedData = JSON.stringify(data);
@@ -106,9 +106,9 @@ async function getEvent(event) {
     return await (await fetch(`https://www.thebluealliance.com/api/v3/event/${event}?X-TBA-Auth-Key=${apikey}`)).json();
 }
 
-var teams = JSON.parse(localStorage.teams);
+var teams = JSONparse(localStorage.teams);
 
-getYear().then(value => {
+getYear().then(value => {   
     year = value;
     if (+localStorage.teamsYear != year)
         getTeams().then(value => {
@@ -136,7 +136,7 @@ importData();
 
 function importData() {
     try {
-        shortData = JSON.parse(decodeURI(location.search).slice(1));
+        shortData = JSON.parse(decodeURIComponent(location.search).slice(1));
     } catch {
         alert("Failed to import: Malformed JSON");
         return;
@@ -174,7 +174,7 @@ function importData() {
                 </tr>`;
     createTable(summary, summaryTable);
 
-    var info = { "Scouter": shortData.m, "Team": shortData.t, "": teams[shortData.t].nickname, "Alliance": shortData.a, "Round": shortData.o };
+    var info = { "Scouter": shortData.m, "Team": shortData.t, "": getTeamName(shortData.t), "Alliance": shortData.a, "Round": shortData.o };
     summaryTable.innerHTML += "<tr><td>&nbsp;</td></tr>"
     createTable(info, summaryTable);
     summary.scouterName = shortData.m;
@@ -183,6 +183,14 @@ function importData() {
     summary.roundNumber = shortData.o;
 
     notes.innerText = shortData.n;
+}
+
+function getTeamName(team) {
+    if (teams[team]) {
+        return teams[team].nickname;
+    } else {
+        return "No Data";
+    }
 }
 
 function createTable(data, table) {
@@ -212,4 +220,11 @@ function loadPage(page) {
         case 3: endGame();
         case 4: exportData();
     }
+}
+function JSONparse(str, error) {
+  try {
+    return JSON.parse(str);
+  } catch {
+    return error;
+  }
 }
