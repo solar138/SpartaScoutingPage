@@ -534,7 +534,7 @@ var alerted = false;
 function exportData() {
   summarize();
   qrcode.innerHTML = "";
-  summary.n = notes.textContent;
+  summary.n = notes.value;
   var url = "https://sparta-scouting-page.vercel.app/import/?" + encodeURIComponent(JSON.stringify(summary));
   while (url.length >= 192 && url.length <= 217) {
     url += " ";
