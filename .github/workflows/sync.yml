@@ -28,6 +28,8 @@ jobs:
           git fetch upstream
       - name: Sync with upstream/main
         run: |
+          git config --global user.email "solar138@outlook.com"
+          git config --global user.name "Sync Fork"
           git fetch upstream main
           git checkout -B main origin/main
           git merge upstream/main
