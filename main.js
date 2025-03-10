@@ -1,4 +1,4 @@
-const apikey = "tYekUbMgHsDcEblf230XxA7WmLMbxFxqALAleZIGZatgAeKCKh7RuaJ1EKGsURCf";
+var apiKey = localStorage.apiKey ?? prompt("Please enter your TBA API key.");
 const summaryKeys = {"Auto Disabled": "da", "Robot Disabled": "dr"};
 const stateButtons = [];
 const eventButtons = [];
