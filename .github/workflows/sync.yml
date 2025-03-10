@@ -1,0 +1,37 @@
+name: Sync Fork
+
+on:
+  push:
+    branches:
+      - "sync-fork"
+  schedule:
+    - cron: '0 0 * * *' #every 24h
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout your forked repository
+        uses: actions/checkout@v4
+        with:
+          repository: solar138/SpartaScoutingPage
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Add upstream repository
+        run: |
+          git remote add upstream https://github.com/SkylineSpartabots/SpartaScoutingPage.git
+          git fetch upstream
+      - name: Sync with upstream/main
+        run: |
+          git fetch upstream main
+          git checkout -B main origin/main
+          git merge upstream/main
+          git push origin main
+      - name: Clean up
+        run: |
+          git remote remove upstream
