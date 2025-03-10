@@ -533,6 +533,7 @@ function getAPIData() {
   getRounds(eventKey).then(value => {
     if (value.Error) {
       if (!noAPI && confirm("API Key is invalid. Press OK to reenter, press cancel to use without TBA API. " + value.Error)) {
+        localStorage.removeItem("apiKey");
         location.reload();
       } else {
         noAPI = true;
