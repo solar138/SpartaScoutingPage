@@ -523,12 +523,15 @@ getYear().then(value => {
 function getAPIData() {
   try {
     rounds = JSONparse(localStorage.rounds);
+    rounds.sort((a, b) => a.key.replace(/\d{4}\w+_(qm)/, "") - b.key.replace(/\d{4}\w+_(qm)/, ""));
   } catch {
     rounds = {};
   }
   getRounds(eventKey).then(value => {
+    value.sort((a, b) => a.key.replace(/\d{4}\w+_(qm)/, "") - b.key.replace(/\d{4}\w+_(qm)/, ""));
     localStorage.rounds = JSON.stringify(value);
     rounds = value;
+    
     updateRound();
   });
 
