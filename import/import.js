@@ -260,12 +260,39 @@ function exportToCSV() {
     var sums = {};
     for (var team in data) {
         var sum = {};
+        var n = 0;
         for (var round in data[team]) {
             for (var field in data[team][round]) {
-                if (stateButtonMap[field]) {
+                if (sumIgnore[field]) {
 
+                } else if (field == "alliance") {
+                    if (sum[field] == undefined)
+                        sum[field] = {};
+                    sum[field][data[team][round][field]] = (sum[field][data[team][round][field]] ?? 0) + 1;
+                } else if (stateButtonMap[field]) {
+                    sum[field] = data[team][round][field];
+                } else {
+                    sum[field] = (sum[field] ?? 0) + data[team][round][field];
                 }
             }
+            n++;
+        }
+        sum.roundsScouted = n;
+        sums[team] = sum;
+    }
+    var csv = [];
+    csv[0] = ["Team"];
+    for (var key in sums[team]) {
+        csv[0].push(key);
+        var i = 0;
+        for (var t in sums) {
+            i++;
+            if (csv[i] == undefined) {
+                csv[i] = [+t];
+            }
+            csv[i].push(sums[t][key]);
         }
     }
+    return csv;
 }
+var sumIgnore = {"scouterName": true, "roundNumber": true, "teamNumber": true};
