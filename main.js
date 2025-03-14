@@ -355,7 +355,7 @@ function summarize() {
     var li = document.createElement("li");
     li.id = `summary${event}`;
     var span = document.createElement("span");
-    span.innerText = `${event}: ${summary[event] ?? currentData[event]}`;
+    span.innerText = `${event}: ${summary[event] ?? q[event]}`;
     li.appendChild(span);
     summaryBox.insertBefore(li, summaryBox.firstChild);
   }
@@ -389,6 +389,7 @@ function startGame(reset) {
     log.innerHTML = "";
     gameStartTime = Date.now();
     localStorage.gameStartTime = gameStartTime;
+    endEarlyButton.hidden = false;
   }
 
   for (var button of eventButtons.concat(stateButtons)) {

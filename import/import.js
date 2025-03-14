@@ -1,4 +1,5 @@
-const apikey = "tYekUbMgHsDcEblf230XxA7WmLMbxFxqALAleZIGZatgAeKCKh7RuaJ1EKGsURCf";
+var apiKey = localStorage.apiKey ?? prompt("Please enter your TBA API key.");
+localStorage.apiKey = apiKey;
 const summaryKeys = {
     "Coral Intaken": "c",
     "Processor Scored": "p",
@@ -43,6 +44,12 @@ const stateButtons = [
     }
 ];
 
+var stateButtonMap = {};
+
+for (var stateButton of stateButtons) {
+    stateButtonMap[stateButton.name] = stateButton;
+}
+
 if (!localStorage) {
     alert("No localStorage available, data may be lost.");
 }
@@ -57,10 +64,10 @@ class ScoutingData {
     }
 }
 document.addEventListener("DOMContentLoaded", () => {
+    loadPage(1);
     if (localStorage.importCurrentPage) {
-        loadPage(+localStorage.importCurrentPage)
+        //loadPage(+localStorage.importCurrentPage)
     } else {
-        loadPage(1);
     }
 });
 
@@ -84,11 +91,11 @@ function validateData() {
 var summary = {};
 
 async function getRounds(event) {
-    return await (await fetch(`https://www.thebluealliance.com/api/v3/event/${event}/matches?X-TBA-Auth-Key=${apikey}`)).json();
+    return await (await fetch(`https://www.thebluealliance.com/api/v3/event/${event}/matches?X-TBA-Auth-Key=${apiKey}`)).json();
 }
 
 async function getYear() {
-    return (await (await fetch(`https://www.thebluealliance.com/api/v3/status?X-TBA-Auth-Key=${apikey}`)).json()).current_season;
+    return (await (await fetch(`https://www.thebluealliance.com/api/v3/status?X-TBA-Auth-Key=${apiKey}`)).json()).current_season;
 }
 
 async function getTeams() {
@@ -96,14 +103,14 @@ async function getTeams() {
     var newTeams = [];
     var i = 0;
     do {
-        newTeams = await (await fetch(`https://www.thebluealliance.com/api/v3/teams/${i}?X-TBA-Auth-Key=${apikey}`)).json();
+        newTeams = await (await fetch(`https://www.thebluealliance.com/api/v3/teams/${i}?X-TBA-Auth-Key=${apiKey}`)).json();
         teams = teams.concat(newTeams);
         i++;
     } while (newTeams.length > 0)
     return teams;
 }
 async function getEvent(event) {
-    return await (await fetch(`https://www.thebluealliance.com/api/v3/event/${event}?X-TBA-Auth-Key=${apikey}`)).json();
+    return await (await fetch(`https://www.thebluealliance.com/api/v3/event/${event}?X-TBA-Auth-Key=${apiKey}`)).json();
 }
 
 var teams = JSONparse(localStorage.teams);
@@ -142,19 +149,25 @@ function importData() {
         return;
     }
     summary = {};
+    display = {};
 
     for (var key in summaryKeys) {
         if (key == "") {
-            summary[key] = "&nbsp;";
+            display[key] = "&nbsp;";
+            summary[key] = 0;
         } else if (key == "Auto Disabled" || key == "Robot Disabled") {
-            summary[key] = (shortData[summaryKeys[key]] ?? 0);
+            display[key] = (shortData[summaryKeys[key]] ?? 0);
+            summary[key] = +((shortData[summaryKeys[key]] ?? 0).replaceAll(" s", ""));
         } else {
-            summary[key] = (shortData[summaryKeys[key]] ?? 0) + " / " + (shortData["a" + summaryKeys[key]] ?? 0);
+            display[key] = (shortData[summaryKeys[key]] ?? 0) + " / " + (shortData["a" + summaryKeys[key]] ?? 0);
+            summary[key] = (shortData[summaryKeys[key]] ?? 0);
+            summary["(Auto) " + key] = (shortData["a" + summaryKeys[key]] ?? 0);
         }
     }
 
     for (var input of stateButtons) {
-        summary[input.name] = input.states[summary[input.name][0]];
+        summary[input.name] = summary[input.name][0] ?? 0;
+        display[input.name] = input.states[display[input.name][0]];
     }
 
     //summaryBox.innerHTML = `<li>Scouter: ${shortData.m}</li><li>Team: ${shortData.t} (${shortData.a})</li><li>Round: ${shortData.o}</li>`;
@@ -172,7 +185,7 @@ function importData() {
                     <td></td>
                     <td>Total / Auto Only</td>
                 </tr>`;
-    createTable(summary, summaryTable);
+    createTable(display, summaryTable);
 
     var info = { "Scouter": shortData.m, "Team": shortData.t, "": getTeamName(shortData.t), "Alliance": shortData.a, "Round": shortData.o };
     summaryTable.innerHTML += "<tr><td>&nbsp;</td></tr>"
@@ -217,8 +230,7 @@ function loadPage(page) {
     localStorage.importCurrentPage = page;
 
     switch (page) {
-        case 3: endGame();
-        case 4: exportData();
+        case 2: loadScoutingData();
     }
 }
 function JSONparse(str, error) {
@@ -228,3 +240,59 @@ function JSONparse(str, error) {
     return error;
   }
 }
+
+function loadScoutingData() {
+    for (var team in data) {
+        var li = document.createElement("li");
+        li.id = `team${team}`;
+        var n = 0;
+        for (var rounds in data[team]) {
+            n++;
+        }
+        var span = document.createElement("span");
+        span.innerText = `${team}: ${n} Round${n == 1 ? "" : "s"}`;
+        li.appendChild(span);
+        dataTable.insertBefore(li, dataTable.firstChild);
+    }
+}
+
+function exportToCSV() {
+    var sums = {};
+    for (var team in data) {
+        var sum = {};
+        var n = 0;
+        for (var round in data[team]) {
+            for (var field in data[team][round]) {
+                if (sumIgnore[field]) {
+
+                } else if (field == "alliance") {
+                    if (sum[field] == undefined)
+                        sum[field] = {};
+                    sum[field][data[team][round][field]] = (sum[field][data[team][round][field]] ?? 0) + 1;
+                } else if (stateButtonMap[field]) {
+                    sum[field] = data[team][round][field];
+                } else {
+                    sum[field] = (sum[field] ?? 0) + data[team][round][field];
+                }
+            }
+            n++;
+        }
+        sum.roundsScouted = n;
+        sums[team] = sum;
+    }
+    var csv = [];
+    csv[0] = ["Team"];
+    for (var key in sums[team]) {
+        csv[0].push(key);
+        var i = 0;
+        for (var t in sums) {
+            i++;
+            if (csv[i] == undefined) {
+                csv[i] = [+t];
+            }
+            csv[i].push(sums[t][key]);
+        }
+    }
+    return csv;
+}
+var sumIgnore = {"scouterName": true, "roundNumber": true, "teamNumber": true};
