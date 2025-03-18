@@ -450,7 +450,7 @@ async function getYear() {
   try {
     result = (await (await fetch(`https://www.thebluealliance.com/api/v3/status?X-TBA-Auth-Key=${apiKey}`)).json()).current_season;
   } catch {
-    result = {};
+    result = 0;
     apisCalled--;
     apisReturned--;
   }
@@ -507,8 +507,8 @@ var district = localStorage.district;
 var teams = JSONparse(localStorage.teams, []);
 
 getYear().then(value => {
-  year = value;
-  if (+localStorage.teamsYear != year)
+  year = +value;
+  if (year > 0 && +localStorage.teamsYear != year)
     getTeams().then(value => {
       teams = {};
       for (var team of value) {
@@ -533,12 +533,14 @@ function getAPIData() {
   }
   getRounds(eventKey).then(value => {
     if (value.Error) {
-      if (!noAPI && confirm("API Key is invalid. Press OK to reenter, press cancel to use without TBA API. " + value.Error)) {
-        localStorage.removeItem("apiKey");
-        location.reload();
-      } else {
-        noAPI = true;
-        return;
+      if (value.Error.startsWith("X-TBA-Auth-Key")) {
+        if (!noAPI && confirm("API Key is invalid. Re-enter key?" + value.Error)) {
+          localStorage.removeItem("apiKey");
+          location.reload();
+        } else {
+          noAPI = true;
+          return;
+        }
       }
     }
     value.sort((a, b) => a.key.replace(/\d{4}\w+_(qm)/, "") - b.key.replace(/\d{4}\w+_(qm)/, ""));
